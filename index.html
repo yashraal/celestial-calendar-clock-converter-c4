@@ -119,6 +119,7 @@
         .alert-title { font-weight: bold; font-size: 1.3rem; display: block; margin-bottom: 0.5rem; }
         .text-red { color: var(--alert-red); }
         .text-green { color: var(--accent-green); }
+        .text-blue { color: var(--accent-blue); }
         .status-subtitle { font-size: 0.9rem; color: #aaa; font-style: italic; }
         .status-subtitle-red { font-size: 0.9rem; color: var(--alert-red); font-style: italic; }
 
@@ -186,7 +187,7 @@
 
     <header>
         <h1>Celestial Calendar Converter</h1>
-        <p class="subtitle">According to the logic of the Lights in the Firmament</p>
+        <p class="subtitle">According to the logic of the Three Witnesses (Sun, Moon, & Stars/Abib)</p>
     </header>
 
     <main class="container">
@@ -249,9 +250,121 @@
     <!-- SCRIPT -->
     <script>
         // --- CONFIGURATION & ANCHORS ---
-        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13); // April 13, 2025
-        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2);  // May 2, 2026
+        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13, 12, 0, 0); // April 13, 2025 Noon
+        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2, 12, 0, 0);  // May 2, 2026 Noon
+
+        // --- THREE WITNESSES LOGIC ---
         
+        function isLeapYear(scriptYear) {
+            if (scriptYear === 6000) return true;
+            if (scriptYear === 6001) return false;
+            let diff = scriptYear - 6000;
+            if (diff % 3 === 0) return true;
+            return false;
+        }
+
+        function getMonthLength(monthIndex, year) {
+            if (monthIndex === 13) return 29; // 13th month
+            return (monthIndex % 2 === 1) ? 30 : 29;
+        }
+
+        function getYearStartDate(scriptYear) {
+            if (scriptYear === 6000) return new Date(ANCHOR_YEAR_6000);
+            if (scriptYear === 6001) return new Date(ANCHOR_YEAR_6001);
+            
+            let startDate = new Date(ANCHOR_YEAR_6000);
+            let currentYear = 6000;
+            
+            if (scriptYear > 6000) {
+                while (currentYear < scriptYear) {
+                    let daysInYear = 0;
+                    let maxM = isLeapYear(currentYear) ? 13 : 12;
+                    for(let m=1; m<=maxM; m++) daysInYear += getMonthLength(m, currentYear);
+                    startDate.setDate(startDate.getDate() + daysInYear);
+                    currentYear++;
+                }
+            } else {
+                while (currentYear > scriptYear) {
+                    currentYear--;
+                    let daysInYear = 0;
+                    let maxM = isLeapYear(currentYear) ? 13 : 12;
+                    for(let m=1; m<=maxM; m++) daysInYear += getMonthLength(m, currentYear);
+                    startDate.setDate(startDate.getDate() - daysInYear);
+                }
+            }
+            // Ensure output is noon
+            startDate.setHours(12,0,0,0);
+            return startDate;
+        }
+
+        // --- CORE DATE ENGINE ---
+        function getScripturalDate(gregorianDateObj) {
+            let inputDate = new Date(gregorianDateObj);
+            inputDate.setHours(12,0,0,0); 
+
+            const epoch = ANCHOR_YEAR_6000;
+            const diffTime = inputDate - epoch;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            let estimatedYear = 6000 + Math.floor(diffDays / 354.367);
+
+            let yearStart = getYearStartDate(estimatedYear);
+            
+            while (inputDate < yearStart) {
+                estimatedYear--;
+                yearStart = getYearStartDate(estimatedYear);
+            }
+            
+            let nextYearStart = getYearStartDate(estimatedYear + 1);
+            while (inputDate >= nextYearStart) {
+                estimatedYear++;
+                yearStart = nextYearStart;
+                nextYearStart = getYearStartDate(estimatedYear + 1);
+            }
+
+            let daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
+            let monthIndex = 1;
+            let dayCount = 1;
+            let maxMonths = isLeapYear(estimatedYear) ? 13 : 12;
+            
+            while (monthIndex <= maxMonths) {
+                let mLen = getMonthLength(monthIndex, estimatedYear);
+                
+                if (daysRemaining < mLen) {
+                    dayCount = daysRemaining + 1;
+                    break;
+                }
+                
+                daysRemaining -= mLen;
+                monthIndex++;
+            }
+
+            const isNewMoon = (dayCount === 1);
+            const isShabbat = (dayCount === 8 || dayCount === 15 || dayCount === 22 || dayCount === 29);
+
+            return { year: estimatedYear, month: monthIndex, day: dayCount, isNewMoon, isShabbat };
+        }
+
+        // Convert Scriptural to Gregorian (Handles Day 30 fix)
+        function getGregorianFromScriptural(year, month, day) {
+            let yearStart = getYearStartDate(year);
+            
+            // Add months
+            for (let m = 1; m < month; m++) {
+                let monthLen = getMonthLength(m, year);
+                yearStart.setDate(yearStart.getDate() + monthLen);
+            }
+            
+            // Fix for Day 30: Check if requested day exceeds month length
+            let targetMonthLen = getMonthLength(month, year);
+            let validDay = Math.min(day, targetMonthLen);
+            
+            // Add days (Day 1 adds 0 days)
+            yearStart.setDate(yearStart.getDate() + (validDay - 1));
+            yearStart.setHours(12,0,0,0); // Ensure Noon
+            return yearStart;
+        }
+
         // --- INITIALIZATION ---
         window.onload = function() {
             try {
@@ -293,22 +406,6 @@
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        function isLeapYear(scriptYear) {
-            return (scriptYear % 3 === 0);
-        }
-
-        function getYearStartDate(scriptYear) {
-            if (scriptYear === 6000) return ANCHOR_YEAR_6000;
-            if (scriptYear === 6001) return ANCHOR_YEAR_6001;
-            
-            const yearsDiff = scriptYear - 6000;
-            const totalDays = Math.round(yearsDiff * 354.367);
-            
-            let startDate = new Date(ANCHOR_YEAR_6000);
-            startDate.setDate(startDate.getDate() + totalDays);
-            return startDate;
-        }
-
         function getGregorianRange(scriptYear) {
             const startDate = getYearStartDate(scriptYear);
             const startYear = startDate.getFullYear();
@@ -318,73 +415,9 @@
         function findCurrentActiveYear(today) {
             if (today >= ANCHOR_YEAR_6001) return 6001;
             if (today >= ANCHOR_YEAR_6000) return 6000;
-            const diffTime = today - ANCHOR_YEAR_6000;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            const yearsDiff = Math.floor(diffDays / 354);
-            return 6000 + yearsDiff;
-        }
-
-        // --- CORE DATE ENGINE ---
-        function getScripturalDate(gregorianDateObj) {
-            const inputDate = new Date(gregorianDateObj);
-            inputDate.setHours(12,0,0,0); 
-            
-            const epoch = ANCHOR_YEAR_6000;
-            const diffTime = inputDate - epoch;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            const daysPerYear = 354.367;
-            let estimatedYear = 6000 + Math.floor(diffDays / daysPerYear);
-
-            let yearStart = getYearStartDate(estimatedYear);
-            let daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
-
-            while (daysRemaining < 0) {
-                estimatedYear--;
-                yearStart = getYearStartDate(estimatedYear);
-                daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
-            }
-
-            let monthIndex = 1;
-            let dayCount = 1;
-            let daysInYear = isLeapYear(estimatedYear) ? 384 : 354; 
-            
-            if (daysRemaining > daysInYear) {
-                 estimatedYear++;
-                 yearStart = getYearStartDate(estimatedYear);
-                 daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
-            }
-
-            let limit = 0;
-            while(true && limit < 20) {
-                limit++;
-                let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
-                
-                if (isLeapYear(estimatedYear) && monthIndex === 13) {
-                    currentMonthLen = 29; 
-                }
-
-                if (daysRemaining < currentMonthLen) {
-                    dayCount = daysRemaining + 1;
-                    break;
-                }
-                
-                daysRemaining -= currentMonthLen;
-                monthIndex++;
-                
-                let maxMonth = isLeapYear(estimatedYear) ? 13 : 12;
-                if (monthIndex > maxMonth) {
-                    estimatedYear++;
-                    yearStart = getYearStartDate(estimatedYear);
-                    daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
-                    monthIndex = 1;
-                }
-            }
-
-            const isNewMoon = (dayCount === 1);
-            const isShabbat = (dayCount === 8 || dayCount === 15 || dayCount === 22 || dayCount === 29);
-
-            return { year: estimatedYear, month: monthIndex, day: dayCount, isNewMoon, isShabbat };
+            let y = 6000;
+            while(getYearStartDate(y + 1) <= today) y++;
+            return y;
         }
 
         // --- CONVERTER UI ---
@@ -416,7 +449,7 @@
             `;
         }
 
-        // --- AGE CALCULATOR UI ---
+        // --- AGE CALCULATOR (FIXED) ---
         function calculateAge() {
             const input = document.getElementById('birth-date');
             const resultDiv = document.getElementById('age-result-display');
@@ -427,9 +460,11 @@
 
             const parts = input.value.split('-');
             const birthDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-            const today = new Date();
-            today.setHours(12,0,0,0);
+            let today = new Date();
+            
+            // Strict Noon Anchoring to prevent Timezone/DST errors
             birthDate.setHours(12,0,0,0);
+            today.setHours(12,0,0,0);
 
             if (birthDate > today) {
                 resultDiv.innerHTML = "<p style='color:red'>Birth date cannot be in the future.</p>";
@@ -443,51 +478,65 @@
             else if (birthSD.isShabbat) birthStatus = "<span class='text-red'>Shabbat</span>";
             else birthStatus = "<span class='text-green'>Work Day</span>";
 
-            // 2. Calculate Duration (Iterative for accuracy)
+            // 2. Calculate Duration
             let years = 0;
             let months = 0;
             let days = 0;
             
-            let tempDate = new Date(birthDate);
-            
+            let currentSD = { ...birthSD };
+            let currentGregorian = new Date(birthDate);
+
             // Count Years
             while(true) {
-                let nextBirthday = new Date(tempDate);
-                // Approximate 1 year addition
-                let nextSD = getScripturalDate(nextBirthday);
-                // Calculate start of next year
-                let nextYearStart = getYearStartDate(nextSD.year + 1);
-                // We want to find the same scriptural date next year
-                // Simple approximation: Add days in the current scriptural year
-                let daysInCurrentYear = isLeapYear(nextSD.year) ? 384 : 354;
+                let nextBirthdaySD = { year: currentSD.year + 1, month: birthSD.month, day: birthSD.day };
+                let nextBirthday = getGregorianFromScriptural(nextBirthdaySD.year, nextBirthdaySD.month, nextBirthdaySD.day);
                 
-                // Better approach: Find the Gregorian date for (Year+1, Month, Day)
-                // We don't have a reverse function, so we use the approximation for now
-                // which is extremely accurate for age counting purposes.
-                
-                let checkDate = addDays(tempDate, daysInCurrentYear);
-                if (checkDate <= today) {
+                // Check strictly at noon
+                if (nextBirthday <= today) {
                     years++;
-                    tempDate = checkDate;
+                    currentSD = nextBirthdaySD;
+                    currentGregorian = nextBirthday;
                 } else {
                     break;
                 }
             }
 
             // Count Months
-            while(true) {
-                let daysInCurrentMonth = (getScripturalDate(tempDate).month % 2 === 1) ? 30 : 29;
-                let checkDate = addDays(tempDate, daysInCurrentMonth);
-                if (checkDate <= today) {
+            // We count up to 13 months to cover leap years
+            let monthSafety = 0;
+            while(monthSafety < 14) {
+                monthSafety++;
+                
+                let nextMonthSD = { ...currentSD };
+                nextMonthSD.month++;
+                
+                let maxMonth = isLeapYear(nextMonthSD.year) ? 13 : 12;
+                if (nextMonthSD.month > maxMonth) {
+                    nextMonthSD.month = 1;
+                    nextMonthSD.year++;
+                }
+                
+                let nextMonthDate = getGregorianFromScriptural(nextMonthSD.year, nextMonthSD.month, nextMonthSD.day);
+                
+                if (nextMonthDate <= today) {
                     months++;
-                    tempDate = checkDate;
+                    currentSD = nextMonthSD;
+                    currentGregorian = nextMonthDate;
                 } else {
                     break;
                 }
             }
 
             // Count Days
-            days = Math.floor((today - tempDate) / (1000 * 60 * 60 * 24));
+            // Difference in milliseconds, converted to days
+            let diffTime = Math.abs(today - currentGregorian);
+            days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // 3. Next Cycle Completion
+            // Logic: Take the current position (Year/Month/Day), add 1 year, find date.
+            // But simpler: Find next Anniversary relative to Birth.
+            let nextBirthdaySD = { year: birthSD.year + years + 1, month: birthSD.month, day: birthSD.day };
+            let nextBirthdayGreg = getGregorianFromScriptural(nextBirthdaySD.year, nextBirthdaySD.month, nextBirthdaySD.day);
 
             resultDiv.innerHTML = `
                 <div style="margin-bottom: 1rem;">
@@ -513,6 +562,16 @@
                     <span class="age-label">Days:</span>
                     <span class="age-value">${days}</span>
                 </div>
+                <hr style="border-color: #333; margin-top: 1rem;">
+                <div style="margin-top: 1rem;">
+                    <p style="font-size: 0.9rem; color: #aaa;">Next Cycle Completion (Age ${years + 1}):</p>
+                    <p class="text-blue" style="font-size: 1.1rem; font-weight: bold;">
+                        ${formatDate(nextBirthdayGreg)}
+                    </p>
+                    <p style="font-size: 0.8rem; color: #888;">
+                        (Scriptural: Year ${nextBirthdaySD.year}, Month ${nextBirthdaySD.month}, Day ${nextBirthdaySD.day})
+                    </p>
+                </div>
             `;
         }
 
@@ -522,7 +581,7 @@
             const tableBody = document.getElementById('feast-table-container');
             const headerDiv = document.getElementById('feast-year-header');
             const today = new Date();
-            today.setHours(0,0,0,0);
+            today.setHours(12,0,0,0);
 
             const gregorianRange = getGregorianRange(targetYear);
             headerDiv.innerHTML = `Scriptural Year: <span class="highlight">${targetYear}</span><br>
