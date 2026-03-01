@@ -256,6 +256,7 @@
     </footer>
 
     <!-- SCRIPT -->
+    <!-- SCRIPT -->
     <script>
         // --- CONFIGURATION & ANCHORS ---
         const ANCHOR_YEAR_6000 = new Date(2025, 3, 13); // April 13, 2025
@@ -270,7 +271,6 @@
                 const yyyy = today.getFullYear();
                 document.getElementById('gregorian-date').value = `${yyyy}-${mm}-${dd}`;
                 
-                // Populate Year Selector
                 const select = document.getElementById('year-select');
                 const currentActiveYear = findCurrentActiveYear(today);
                 
@@ -303,11 +303,18 @@
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
+        function isLeapYear(scriptYear) {
+            // Logic: Year 6000 is a Leap Year. We assume a 3-year cycle for approximation.
+            // If (Year % 3 == 0), it is a leap year in this simplified logic to match 6000 being leap.
+            return (scriptYear % 3 === 0);
+        }
+
         function getYearStartDate(scriptYear) {
             if (scriptYear === 6000) return ANCHOR_YEAR_6000;
             if (scriptYear === 6001) return ANCHOR_YEAR_6001;
             
             const yearsDiff = scriptYear - 6000;
+            // Avg lunar year is 354.367 days.
             const totalDays = Math.round(yearsDiff * 354.367);
             
             let startDate = new Date(ANCHOR_YEAR_6000);
@@ -330,42 +337,81 @@
             return 6000 + yearsDiff;
         }
 
-        // --- DATE CONVERTER ---
+        // --- DATE CONVERTER (UPDATED FOR PAST DATES) ---
         function getScripturalDate(gregorianDateObj) {
             const inputDate = new Date(gregorianDateObj);
             inputDate.setHours(12,0,0,0); 
             
-            let year, month, day;
-            
-            if (inputDate >= ANCHOR_YEAR_6001) {
-                year = 6001;
-                const diffDays = Math.floor((inputDate - ANCHOR_YEAR_6001) / (1000 * 60 * 60 * 24));
-                let daysRemaining = diffDays;
-                let monthIndex = 1;
-                while(true) {
-                    let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
-                    if (daysRemaining < currentMonthLen) { day = daysRemaining + 1; month = monthIndex; break; }
-                    daysRemaining -= currentMonthLen; monthIndex++;
-                }
-            } else if (inputDate >= ANCHOR_YEAR_6000) {
-                year = 6000;
-                const diffDays = Math.floor((inputDate - ANCHOR_YEAR_6000) / (1000 * 60 * 60 * 24));
-                let daysRemaining = diffDays;
-                let monthIndex = 1;
-                while(true) {
-                    let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
-                    if (daysRemaining < currentMonthLen) { day = daysRemaining + 1; month = monthIndex; break; }
-                    daysRemaining -= currentMonthLen; monthIndex++;
-                }
-            } else {
-                return { error: "Date is before the Scriptural Year start (Abib 2025)." };
+            // 1. Calculate total days from the fixed Epoch (Year 6000)
+            const epoch = ANCHOR_YEAR_6000;
+            const diffTime = inputDate - epoch;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // 2. Estimate the Scriptural Year
+            // Use average days per year to guess the year
+            const daysPerYear = 354.367;
+            let estimatedYear = 6000 + Math.floor(diffDays / daysPerYear);
+
+            // 3. Refine the Year
+            // Calculate the start date of the estimated year
+            let yearStart = getYearStartDate(estimatedYear);
+            let daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
+
+            // If daysRemaining is negative, we guessed a year too far ahead
+            while (daysRemaining < 0) {
+                estimatedYear--;
+                yearStart = getYearStartDate(estimatedYear);
+                daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
             }
 
-            // Determine Special Days
-            const isNewMoon = (day === 1);
-            const isShabbat = (day === 8 || day === 15 || day === 22 || day === 29);
+            // 4. Find Month and Day
+            let monthIndex = 1;
+            let dayCount = 1;
+            let daysInYear = isLeapYear(estimatedYear) ? 384 : 354; // Approx days in year
+            
+            // Safety check for overflow (if we guessed too far back)
+            if (daysRemaining > daysInYear) {
+                 estimatedYear++;
+                 yearStart = getYearStartDate(estimatedYear);
+                 daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
+            }
 
-            return { year, month, day, isNewMoon, isShabbat };
+            // Iterate through months
+            let limit = 0;
+            while(true && limit < 20) {
+                limit++; // Safety break
+                let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
+                
+                // Handle Leap Year 13th Month logic (simple approximation)
+                // If it is a leap year, we assume the pattern continues or an extra month is added.
+                // Based on user data: Year 6000 (Leap) has 13 months.
+                if (isLeapYear(estimatedYear) && monthIndex === 13) {
+                    currentMonthLen = 29; // Assuming 13th month is usually 29 days
+                }
+
+                if (daysRemaining < currentMonthLen) {
+                    dayCount = daysRemaining + 1;
+                    break;
+                }
+                
+                daysRemaining -= currentMonthLen;
+                monthIndex++;
+                
+                // If we passed month 12 (or 13 in leap), we moved to next year (should be handled by refinement above)
+                let maxMonth = isLeapYear(estimatedYear) ? 13 : 12;
+                if (monthIndex > maxMonth) {
+                    // Recalculate for next year (fallback)
+                    estimatedYear++;
+                    yearStart = getYearStartDate(estimatedYear);
+                    daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
+                    monthIndex = 1;
+                }
+            }
+
+            const isNewMoon = (dayCount === 1);
+            const isShabbat = (dayCount === 8 || dayCount === 15 || dayCount === 22 || dayCount === 29);
+
+            return { year: estimatedYear, month: monthIndex, day: dayCount, isNewMoon, isShabbat };
         }
 
         function convertDate() {
@@ -376,39 +422,34 @@
             const result = getScripturalDate(dateObj);
             const resultDiv = document.getElementById('result-display');
 
-            if (result.error) {
-                resultDiv.innerHTML = `<p style="color:red;">${result.error}</p>`;
+            // Determine Status Text
+            let statusHtml = "";
+            if (result.isNewMoon) {
+                statusHtml = `
+                    <span class="alert-title text-red">New Moon Day</span>
+                    <span class="status-subtitle-red">Mandatory Observance</span>
+                `;
+            } else if (result.isShabbat) {
+                statusHtml = `
+                    <span class="alert-title text-red">Shabbat</span>
+                    <span class="status-subtitle-red">Mandatory Observance</span>
+                `;
             } else {
-                let statusHtml = "";
-                
-                // Logic: Red for Mandatory (New Moon, Shabbat), Green for Regular
-                if (result.isNewMoon) {
-                    statusHtml = `
-                        <span class="alert-title text-red">New Moon Day</span>
-                        <span class="status-subtitle-red">Mandatory Observance</span>
-                    `;
-                } else if (result.isShabbat) {
-                    statusHtml = `
-                        <span class="alert-title text-red">Shabbat</span>
-                        <span class="status-subtitle-red">Mandatory Observance</span>
-                    `;
-                } else {
-                    statusHtml = `
-                        <span class="alert-title text-green">Regular Day</span>
-                        <span class="status-subtitle">Work Day</span>
-                    `;
-                }
-
-                resultDiv.innerHTML = `
-                    <p>Pagan Date: ${dateObj.toDateString()}</p>
-                    <hr style="border-color: #333;">
-                    <p>Scriptural Year: <span class="highlight">${result.year}</span></p>
-                    <p>Scriptural Month: <span class="highlight">${result.month}</span></p>
-                    <p>Scriptural Day: <span class="highlight">${result.day}</span></p>
-                    <hr style="border-color: #333;">
-                    <div>${statusHtml}</div>
+                statusHtml = `
+                    <span class="alert-title text-green">Regular Day</span>
+                    <span class="status-subtitle">Work Day</span>
                 `;
             }
+
+            resultDiv.innerHTML = `
+                <p>Pagan Date: ${dateObj.toDateString()}</p>
+                <hr style="border-color: #333;">
+                <p>Scriptural Year: <span class="highlight">${result.year}</span></p>
+                <p>Scriptural Month: <span class="highlight">${result.month}</span></p>
+                <p>Scriptural Day: <span class="highlight">${result.day}</span></p>
+                <hr style="border-color: #333;">
+                <div>${statusHtml}</div>
+            `;
         }
 
         // --- FEAST CALCULATOR ---
@@ -428,66 +469,15 @@
                 return addDays(yearStart, feastOffset);
             };
 
-            // Feast Definitions
             const feasts = [
-                { 
-                    name: "Rosh Chodashim (New Year)", 
-                    offset: 0, 
-                    isRange: false,
-                    ref: "Exodus 12:2",
-                    mandatory: false // Informational
-                },
-                { 
-                    name: "Pesach (Passover)", 
-                    offset: 13, // Eve of 14th
-                    isRange: false,
-                    ref: "Leviticus 23:5",
-                    mandatory: true
-                },
-                { 
-                    name: "Chag HaMatzot (Unleavened Bread)", 
-                    offset: 14, 
-                    isRange: true, 
-                    endOffset: 20,
-                    ref: "Leviticus 23:6-8",
-                    mandatory: true
-                },
-                { 
-                    name: "Yom HaBikkurim (First Fruits)", 
-                    offset: 16, 
-                    isRange: false,
-                    ref: "Leviticus 23:9-14",
-                    mandatory: true
-                },
-                { 
-                    name: "Shavuot (Feast of Weeks)", 
-                    offset: 16 + 50, 
-                    isRange: false,
-                    ref: "Leviticus 23:15-21",
-                    mandatory: true
-                },
-                { 
-                    name: "Yom Teruah (Trumpets)", 
-                    offset: 177, 
-                    isRange: false,
-                    ref: "Leviticus 23:24-25",
-                    mandatory: true
-                },
-                { 
-                    name: "Yom Kippur (Atonement)", 
-                    offset: 177 + 9, 
-                    isRange: false,
-                    ref: "Leviticus 23:27-32",
-                    mandatory: true
-                },
-                { 
-                    name: "Sukkot (Booths)", 
-                    offset: 177 + 14, 
-                    isRange: true, 
-                    endOffset: 177 + 21,
-                    ref: "Leviticus 23:34-36",
-                    mandatory: true
-                }
+                { name: "Rosh Chodashim (New Year)", offset: 0, isRange: false, ref: "Exodus 12:2", mandatory: false },
+                { name: "Pesach (Passover)", offset: 13, isRange: false, ref: "Leviticus 23:5", mandatory: true },
+                { name: "Chag HaMatzot (Unleavened Bread)", offset: 14, isRange: true, endOffset: 20, ref: "Leviticus 23:6-8", mandatory: true },
+                { name: "Yom HaBikkurim (First Fruits)", offset: 16, isRange: false, ref: "Leviticus 23:9-14", mandatory: true },
+                { name: "Shavuot (Feast of Weeks)", offset: 16 + 50, isRange: false, ref: "Leviticus 23:15-21", mandatory: true },
+                { name: "Yom Teruah (Trumpets)", offset: 177, isRange: false, ref: "Leviticus 23:24-25", mandatory: true },
+                { name: "Yom Kippur (Atonement)", offset: 177 + 9, isRange: false, ref: "Leviticus 23:27-32", mandatory: true },
+                { name: "Sukkot (Booths)", offset: 177 + 14, isRange: true, endOffset: 177 + 21, ref: "Leviticus 23:34-36", mandatory: true }
             ];
 
             let html = "";
@@ -510,18 +500,12 @@
                 if (feast.isRange) {
                     let endPast = getFeastDate(targetYear - 1, feast.endOffset);
                     let endFuture = getFeastDate(targetYear + 1, feast.endOffset);
-                    
-                    if (dateThisYear < today) {
-                        endPast = getFeastDate(targetYear, feast.endOffset);
-                    } else {
-                        endFuture = getFeastDate(targetYear, feast.endOffset);
-                    }
-                    
+                    if (dateThisYear < today) { endPast = getFeastDate(targetYear, feast.endOffset); } 
+                    else { endFuture = getFeastDate(targetYear, feast.endOffset); }
                     pastStr = `${formatDate(dateDisplayPast)} - ${formatDate(endPast)}`;
                     futureStr = `${formatDate(dateDisplayFuture)} - ${formatDate(endFuture)}`;
                 }
 
-                // Status Text: Red for Mandatory, Gray for Memorial
                 const statusText = feast.mandatory 
                     ? '<span class="mandatory-status">Mandatory Observance</span>' 
                     : '<span class="memorial-status">Memorial / Time Marker</span>';
