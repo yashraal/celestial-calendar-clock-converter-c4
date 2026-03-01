@@ -54,26 +54,41 @@
             margin: 0;
         }
 
-        .subtitle { font-style: italic; opacity: 0.8; font-size: 0.9rem; }
+        .subtitle { font-style: italic; opacity: 0.8; font-size: 0.9rem; margin-bottom: 1rem; display: block; }
 
-        /* Language Selector */
-        .lang-selector {
-            position: absolute;
-            top: 10px;
-            right: 15px;
+        /* Language Bar */
+        .lang-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .lang-btn {
             background: transparent;
             border: 1px solid var(--primary-gold);
             color: var(--primary-gold);
-            padding: 5px;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-family: 'Lato', sans-serif;
             cursor: pointer;
-        }
-        .lang-selector option {
-            background: var(--dark-bg);
-            color: var(--text-light);
+            font-size: 0.8rem;
+            transition: all 0.3s;
         }
 
+        .lang-btn:hover, .lang-btn.active {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+        }
+
+        /* Google Translate Customization */
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0px !important; }
+        .goog-te-gadget { font-family: 'Lato', sans-serif !important; }
+        .goog-te-gadget-simple { background-color: rgba(0,0,0,0) !important; border: 1px solid var(--primary-gold) !important; border-radius: 4px; padding: 4px !important; }
+        .goog-te-menu-value span { color: var(--primary-gold) !important; }
+        
         .container {
             max-width: 900px;
             margin: 2rem auto;
@@ -205,15 +220,29 @@
     <div class="stars"></div>
 
     <header>
-        <!-- Language Selector -->
-        <select id="lang-switch" class="lang-selector" onchange="changeLanguage(this.value)">
-            <option value="en">English</option>
-            <option value="pt">Português</option>
-            <option value="es">Español</option>
-        </select>
-
         <h1 id="title">Celestial Calendar Converter</h1>
         <p class="subtitle" id="subtitle">According to the logic of the Three Witnesses (Sun, Moon, & Stars/Abib)</p>
+        
+        <!-- Language Selector -->
+        <div class="lang-bar">
+            <button class="lang-btn" onclick="changeLanguage('en')">English</button>
+            <button class="lang-btn" onclick="changeLanguage('pt')">Português</button>
+            <button class="lang-btn" onclick="changeLanguage('es')">Español</button>
+            <button class="lang-btn" onclick="changeLanguage('de')">Deutsch</button>
+            <button class="lang-btn" onclick="changeLanguage('fr')">Français</button>
+            <button class="lang-btn" onclick="changeLanguage('it')">Italiano</button>
+            <button class="lang-btn" onclick="changeLanguage('he')">עברית</button>
+            <button class="lang-btn" onclick="changeLanguage('ar')">العربية</button>
+            <button class="lang-btn" onclick="changeLanguage('ru')">Русский</button>
+            <button class="lang-btn" onclick="changeLanguage('zh')">中文</button>
+            <button class="lang-btn" onclick="changeLanguage('ja')">日本語</button>
+            <button class="lang-btn" onclick="changeLanguage('ko')">한국어</button>
+            <button class="lang-btn" onclick="changeLanguage('sw')">Swahili</button>
+            <button class="lang-btn" onclick="changeLanguage('yo')">Yorùbá</button>
+            
+            <!-- Google Translate for all other languages -->
+            <div id="google_translate_element" style="display:inline-block;"></div>
+        </div>
     </header>
 
     <main class="container">
@@ -270,10 +299,23 @@
     </main>
 
     <footer>
-        <p id="footer-verse">"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: He made the stars also." - Genesis 1:14-16</p>
+        <p id="footer-verse">"And Elohim said..."</p>
     </footer>
 
-    <!-- SCRIPT -->
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'af,am,az,bg,bn,bs,ca,co,cs,cy,da,el,eo,et,eu,fa,fi,fy,ga,gd,gl,gu,ha,haw,hi,hmn,hr,ht,hu,hy,id,ig,is,jv,ka,kk,km,kn,ku,ky,la,lb,lo,lt,lv,mg,mi,mk,ml,mn,mr,ms,mt,ne,nl,no,ny,pa,pl,ps,ro,sd,si,sk,sl,sm,sn,so,sq,sr,st,su,sv,sx,ta,te,tg,th,tl,tr,uk,ur,uz,vi,xh,yi,zh-CN,zh-TW,zu',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <!-- APP SCRIPT -->
     <script>
         // --- TRANSLATIONS ---
         const translations = {
@@ -306,7 +348,7 @@
                 next_cycle: "Next Cycle Completion",
                 previous: "Previous:",
                 next: "Next:",
-                footer: '"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: He made the stars also." - Genesis 1:14-16',
+                footer: '"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also." - Genesis 1:14-16',
                 feasts: {
                     new_year: "Rosh Chodashim (New Year)",
                     pesach: "Pesach (Passover)",
@@ -325,30 +367,30 @@
                 conv_title: "Conversor de Datas",
                 lbl_greg_date: "Digite a Data Pagã (Gregoriana):",
                 btn_calculate: "Calcular",
-                age_title: "Calculadora de Idade Escriturística",
+                age_title: "Calculadora de Idade Escritural",
                 lbl_birth_date: "Digite sua Data de Nascimento Pagã:",
                 btn_calc_age: "Calcular Idade",
-                init_age_msg: "Digite sua data de nascimento para ver sua Idade Escriturística.",
+                init_age_msg: "Digite sua data de nascimento para ver sua Idade Escritural.",
                 feasts_title: "Linha do Tempo das Festas",
                 lbl_ref_year: "Ano de Referência:",
                 pagan_date: "Data Pagã",
-                scr_year: "Ano Escriturístico",
-                scr_month: "Mês Escriturístico",
-                scr_day: "Dia Escriturístico",
+                scr_year: "Ano Escritural",
+                scr_month: "Mês Escritural",
+                scr_day: "Dia Escritural",
                 status_new_moon: "Dia da Lua Nova",
                 status_shabbat: "Shabbat",
                 status_regular: "Dia Regular",
                 status_mandatory: "Observância Obrigatória",
                 status_work_day: "Dia de Trabalho",
                 age_born_on: "Você nasceu em:",
-                age_your_age: "Sua Idade Escriturística:",
+                age_your_age: "Sua Idade Escritural:",
                 years: "Anos",
                 months: "Meses",
                 days: "Dias",
                 next_cycle: "Próximo Ciclo Completo",
                 previous: "Anterior:",
                 next: "Próximo:",
-                footer: '"E disse Elohim: Haja luminares na expansão dos céus, para haver separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos." - Gênesis 1:14',
+                footer: '"E disse Elohim: Haja luminares na expansão dos céus, para haver separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos. E sejam para luminares na expansão dos céus, para iluminar a terra; e assim foi. E fez Elohim os dois grandes luminares: o luminar maior para governar o dia, e o luminar menor para governar a noite; e fez as estrelas." - Gênesis 1:14-16',
                 feasts: {
                     new_year: "Rosh Chodashim (Ano Novo)",
                     pesach: "Pesach (Páscoa)",
@@ -390,7 +432,7 @@
                 next_cycle: "Próximo Ciclo Completo",
                 previous: "Anterior:",
                 next: "Próximo:",
-                footer: '"Y dijo Elohim: Sean lumbreras en la expansión de los cielos para separar el día de la noche; y sean por señales, y por estaciones, y por días y años." - Génesis 1:14',
+                footer: '"Y dijo Elohim: Sean lumbreras en la expansión de los cielos para separar el día de la noche; y sean por señales, y por estaciones, y por días y años. Y sean por lumbreras en la expansión de los cielos para alumbrar sobre la tierra: y fue así. E hizo Elohim las dos grandes lumbreras; la lumbrera mayor para que señorease en el día, y la lumbrera menor para que señorease en la noche: hizo también las estrellas." - Génesis 1:14-16',
                 feasts: {
                     new_year: "Rosh Chodashim (Año Nuevo)",
                     pesach: "Pesach (Pascua)",
@@ -402,40 +444,65 @@
                     sukkot: "Sukkot (Tabernáculos)"
                 },
                 status_memorial: "Memorial / Marcador de Tiempo"
-            }
+            },
+            de: { title: "Himmlischer Kalenderkonverter", subtitle: "Nach der Logik der Drei Zeugen (Sonne, Mond & Sterne/Abib)", conv_title: "Datumkonverter", lbl_greg_date: "Heidnisches (Gregorianisches) Datum eingeben:", btn_calculate: "Berechnen", age_title: "Schriftliches Altersrechner", lbl_birth_date: "Geben Sie Ihr heidnisches Geburtsdatum ein:", btn_calc_age: "Alter Berechnen", init_age_msg: "Geben Sie Ihr Geburtsdatum ein, um Ihr Schriftliches Alter zu sehen.", feasts_title: "Zeitleiste der Feste", lbl_ref_year: "Referenzjahr:", pagan_date: "Heidnisches Datum", scr_year: "Schriftliches Jahr", scr_month: "Schriftlicher Monat", scr_day: "Schriftlicher Tag", status_new_moon: "Neumondtag", status_shabbat: "Shabbat", status_regular: "Regulärer Tag", status_mandatory: "Obligatorische Beobachtung", status_work_day: "Arbeitstag", age_born_on: "Sie wurden geboren am:", age_your_age: "Ihr Schriftliches Alter:", years: "Jahre", months: "Monate", days: "Tage", next_cycle: "Nächster Zyklusabschluss", previous: "Vorherig:", next: "Nächste:", footer: '"Und Elohim sprach: Es werden Lichter an der Feste des Himmels, die da scheiden Tag und Nacht und geben Zeichen, Zeiten, Tage und Jahre. Und seien Lichter an der Feste des Himmels, dass sie scheinen auf Erden. Und es geschah also. Und Elohim machte zwei große Lichter: ein großes Licht, das den Tag regiere, und ein kleines Licht, das die Nacht regiere, dazu auch die Sterne." - 1. Mose 1:14-16', feasts: { new_year: "Rosh Chodashim (Neujahr)", pesach: "Pesach (Passah)", ub: "Chag HaMatzot (Ungesäuertes Brot)", bikkurim: "Yom HaBikkurim (Erstlingsfrüchte)", shavuot: "Shavuot (Wochenfest)", teruah: "Yom Teruah (Posaunen)", kippur: "Yom Kippur (Sühne)", sukkot: "Sukkot (Laubhütten)" }, status_memorial: "Gedenktag / Zeitmarke" },
+            fr: { title: "Convertisseur de Calendrier Céleste", subtitle: "Selon la logique des Trois Témoins (Soleil, Lune & Étoiles/Abib)", conv_title: "Convertisseur de Date", lbl_greg_date: "Entrez la Date Païenne (Grégorienne):", btn_calculate: "Calculer", age_title: "Calculateur d'Âge Scriptural", lbl_birth_date: "Entrez Votre Date de Naissance Païenne:", btn_calc_age: "Calculer l'Âge", init_age_msg: "Entrez votre date de naissance pour voir votre Âge Scriptural.", feasts_title: "Chronologie des Fêtes", lbl_ref_year: "Année de Référence:", pagan_date: "Date Païenne", scr_year: "Année Scripturale", scr_month: "Mois Scriptural", scr_day: "Jour Scriptural", status_new_moon: "Jour de Nouvelle Lune", status_shabbat: "Shabbat", status_regular: "Jour Régulier", status_mandatory: "Observation Obligatoire", status_work_day: "Jour de Travail", age_born_on: "Vous êtes né le:", age_your_age: "Votre Âge Scriptural:", years: "Ans", months: "Mois", days: "Jours", next_cycle: "Prochain Achèvement de Cycle", previous: "Précédent:", next: "Prochain:", footer: '"Et Elohim dit: Qu\'il y ait des luminaires dans l\'étendue des cieux, pour séparer le jour d\'avec la nuit; que ce soient des signes pour marquer les époques, les jours et les années; et qu\'ils servent de luminaires dans l\'étendue des cieux pour éclairer la terre. Et cela fut ainsi. Elohim fit les deux grands luminaires, le grand luminaire pour présider au jour, et le petit luminaire pour présider à la nuit; il fit aussi les étoiles." - Genèse 1:14-16', feasts: { new_year: "Rosh Chodashim (Nouvel An)", pesach: "Pesach (Pâque)", ub: "Chag HaMatzot (Pains sans Levain)", bikkurim: "Yom HaBikkurim (Prémices)", shavuot: "Shavuot (Semaines)", teruah: "Yom Teruah (Trompettes)", kippur: "Yom Kippur (Expiation)", sukkot: "Sukkot (Tabernacles)" }, status_memorial: "Mémorial / Marqueur de Temps" },
+            it: { title: "Convertitore di Calendario Celeste", subtitle: "Secondo la logica dei Tre Testimoni (Sole, Luna & Stelle/Abib)", conv_title: "Convertitore di Date", lbl_greg_date: "Inserisci la Data Pagana (Gregoriana):", btn_calculate: "Calcola", age_title: "Calcolatore di Età Scritturale", lbl_birth_date: "Inserisci la Tua Data di Nascita Pagana:", btn_calc_age: "Calcola Età", init_age_msg: "Inserisci la tua data di nascita per vedere la tua Età Scritturale.", feasts_title: "Sequenza Temporale delle Feste", lbl_ref_year: "Anno di Riferimento:", pagan_date: "Data Pagana", scr_year: "Anno Scritturale", scr_month: "Mese Scritturale", scr_day: "Giorno Scritturale", status_new_moon: "Giorno di Luna Nuova", status_shabbat: "Shabbat", status_regular: "Giorno Regolare", status_mandatory: "Osservanza Obbligatoria", status_work_day: "Giorno Lavorativo", age_born_on: "Sei nato il:", age_your_age: "La tua Età Scritturale:", years: "Anni", months: "Mesi", days: "Giorni", next_cycle: "Prossimo Completamento del Ciclo", previous: "Precedente:", next: "Prossimo:", footer: '"E Elohim disse: Siano fatti dei luminari nel firmamento del cielo per separare il giorno dalla notte; e servano come segni, per le stagioni, per i giorni e per gli anni; e servano come luminari nel firmamento del cielo per illuminare la terra. E così fu. Elohim fece i due grandi luminari: il luminare maggiore per presiedere al giorno, e il luminare minore per presiedere alla notte, e le stelle." - Genesi 1:14-16', feasts: { new_year: "Rosh Chodashim (Capodanno)", pesach: "Pesach (Pasqua)", ub: "Chag HaMatzot (Azzimi)", bikkurim: "Yom HaBikkurim (Primizie)", shavuot: "Shavuot (Settimane)", teruah: "Yom Teruah (Trombe)", kippur: "Yom Kippur (Espiazione)", sukkot: "Sukkot (Capanne)" }, status_memorial: "Memoriale / Marcatore Temporale" },
+            he: { title: "ממיר לוח שמימי", subtitle: "על פי היגיון שלושת העדים (שמש, ירח וכוכבים / אביב)", conv_title: "ממיר תאריכים", lbl_greg_date: "הזן תאריך פגאני (גרגוריאני):", btn_calculate: "חשב", age_title: "מחשבון גיל כתבי", lbl_birth_date: "הזן את תאריך הלידה הפגאני שלך:", btn_calc_age: "חשב גיל", init_age_msg: "הזן את תאריך הלידה שלך כדי לראות את הגיל הכתבי שלך.", feasts_title: "ציר הזמן של החגים", lbl_ref_year: "שנת ייחוס:", pagan_date: "תאריך פגאני", scr_year: "שנה כתבית", scr_month: "חודש כתבי", scr_day: "יום כתבי", status_new_moon: "יום ראש חודש", status_shabbat: "שבת", status_regular: "יום רגיל", status_mandatory: "חיוב צפייה", status_work_day: "יום עבודה", age_born_on: "נולדת ב:", age_your_age: "הגיל הכתבי שלך:", years: "שנים", months: "חודשים", days: "ימים", next_cycle: "סיום המחזור הבא", previous: "קודם:", next: "הבא:", footer: '"וַיֹּאמֶר אֱלֹהִים, יְהִי מְאֹרֹת בִּרְקִיעַ הַשָּׁמַיִם, לְהַבְדִּיל, בֵּין הַיּוֹם וּבֵין הַלָּיְלָה; וְהָיוּ לְאֹתֹת וּלְמוֹעֲדִים, וּלְיָמִים וְשָׁנִים. וְהָיוּ לִמְאוֹרֹת בִּרְקִיעַ הַשָּׁמַיִם, לְהָאִיר עַל-הָאָרֶץ; וַיְהִי-כֵן. וַיַּעַשׂ אֱלֹהִים אֶת-שְׁנֵי הַמְּאֹרֹת הַגְּדֹלִים: אֶת-הַמָּאוֹר הַגָּדֹל, לְמֶמְשֶׁלֶת הַיּוֹם, וְאֶת-הַמָּאוֹר הַקָּטֹן לְמֶמְשֶׁלֶת הַלַּיְלָה; וְאֵת הַכּוֹכָבִים." - בראשית א יד-טז', feasts: { new_year: "ראש חדשים (ראש השנה)", pesach: "פסח", ub: "חג המצות", bikkurim: "יום הביכורים", shavuot: "שבועות", teruah: "יום תרועה", kippur: "יום כיפור", sukkot: "סוכות" }, status_memorial: "אנדרטה / סמן זמן" },
+            ar: { title: "محول التقويم السماوي", subtitle: "حسب منطق الشهود الثلاثة (الشمس والقمر والنجوم / أبيب)", conv_title: "محول التاريخ", lbl_greg_date: "أدخل التاريخ الوثني (الميلادي):", btn_calculate: "حساب", age_title: "حاسبة العمر الكتابي", lbl_birth_date: "أدخل تاريخ ميلادك الوثني:", btn_calc_age: "حساب العمر", init_age_msg: "أدخل تاريخ ميلادك لمعرفة عمرك الكتابي.", feasts_title: "الجدول الزمني للأعياد", lbl_ref_year: "سنة المرجع:", pagan_date: "التاريخ الوثني", scr_year: "السنة الكتابية", scr_month: "الشهر الكتابي", scr_day: "اليوم الكتابي", status_new_moon: "يوم القمر الجديد", status_shabbat: "السبت", status_regular: "يوم عادي", status_mandatory: "مراقبة إلزامية", status_work_day: "يوم عمل", age_born_on: "ولدت في:", age_your_age: "عمرك الكتابي:", years: "سنوات", months: "شهور", days: "أيام", next_cycle: "اكتمال الدورة القادمة", previous: "السابق:", next: "التالي:", footer: '"وَقَالَ اللهُ: لِيَكُنْ نِيرَانِ فِي جَلَدِ السَّمَاوَاتِ لِيَفْصِلاَ بَيْنَ النَّهَارِ وَاللَّيْلِ، وَيَكُونَا لآيَاتٍ وَأَوْقَاتٍ وَأَيَّامٍ وَسِنِينَ. وَيَكُونَا نِيرَيْنِ فِي جَلَدِ السَّمَاوَاتِ لِيُنِيرَا عَلَى الأَرْضِ». وَكَانَ كَذلِكَ. فَعَمِلَ اللهُ النِّيرَيْنِ الْعَظِيمَيْنِ: النِّيرَ الأَكْبَرَ لِحُكْمِ النَّهَارِ، وَالنِّيرَ الأَصْغَرَ لِحُكْمِ اللَّيْلِ، وَالنُّجُومَ." - تكوين 1:14-16', feasts: { new_year: "رأس الشهور (رأس السنة)", pesach: "الفصح", ub: "عيد الفطير", bikkurim: "عيد الباكورة", shavuot: "عيد الأسابيع", teruah: "يوم البوق", kippur: "يوم الكفارة", sukkot: "عيد المظال" }, status_memorial: "تذكاري / علامة زمنية" },
+            ko: { title: "천체 달력 변환기", subtitle: "세 증인 (해, 달, 별/아비브)의 논리에 따라", conv_title: "날짜 변환기", lbl_greg_date: "이교도 (그레고리력) 날짜 입력:", btn_calculate: "계산", age_title: "성경적 나이 계산기", lbl_birth_date: "이교도 생년월일 입력:", btn_calc_age: "나이 계산", init_age_msg: "생년월일을 입력하여 성경적 나이를 확인하세요.", feasts_title: "절기 시간표", lbl_ref_year: "기준 연도:", pagan_date: "이교도 날짜", scr_year: "성경적 연도", scr_month: "성경적 월", scr_day: "성경적 일", status_new_moon: "초승달 날", status_shabbat: "안식일", status_regular: "평일", status_mandatory: "필수 준수", status_work_day: "업무일", age_born_on: "당신은 태어났습니다:", age_your_age: "당신의 성경적 나이:", years: "년", months: "월", days: "일", next_cycle: "다음 주기 완료", previous: "이전:", next: "다음:", footer: '"하나님이 가라사대 하늘의 궁창에 광명이 있어 주야를 나뉘게 하고 또 징조와 사시와 일자와 연한이 이르라 하시고 또 광명이 하늘의 궁창에 있어 땅을 비추라 하시니 그대로 되니라 하나님이 두 큰 광명을 만드사 큰 광명으로 낮을 주관하게 하시고 작은 광명으로 밤을 주관하게 하시며 또 별들도 만드시고" - 창세기 1:14-16', feasts: { new_year: "로쉬 호데쉬 (새해)", pesach: "유월절", ub: "무교절", bikkurim: "초실절", shavuot: "칠칠절", teruah: "나팔절", kippur: "속죄일", sukkot: "초막절" }, status_memorial: "기념일 / 시간 표시" },
+            ru: { title: "Небесный Календарь Конвертер", subtitle: "Согласно логике Трех Свидетелей (Солнце, Луна и Звезды/Авив)", conv_title: "Конвертер Дат", lbl_greg_date: "Введите Языческую (Григорианскую) Дату:", btn_calculate: "Рассчитать", age_title: "Калькулятор Писательного Возраста", lbl_birth_date: "Введите Вашу Языческую Дату Рождения:", btn_calc_age: "Рассчитать Возраст", init_age_msg: "Введите дату рождения, чтобы увидеть Ваш Писательный Возраст.", feasts_title: "Временная Шкала Праздников", lbl_ref_year: "Справочный Год:", pagan_date: "Языческая Дата", scr_year: "Писательный Год", scr_month: "Писательный Месяц", scr_day: "Писательный День", status_new_moon: "День Новолуния", status_shabbat: "Шаббат", status_regular: "Обычный День", status_mandatory: "Обязательное Соблюдение", status_work_day: "Рабочий День", age_born_on: "Вы родились:", age_your_age: "Ваш Писательный Возраст:", years: "Лет", months: "Месяцев", days: "Дней", next_cycle: "Следующее Завершение Цикла", previous: "Предыдущий:", next: "Следующий:", footer: '"И сказал Элохим: да будут светила на тверди небесной [для отделения] дня от ночи, и для знамений, и времен, и дней, и годов; и да будут они светильниками на тверди небесной, чтобы светить на землю. И стало так. И создал Элохим два светила великие: светило большее, для управления днем, и светило меньшее, для управления ночью, и звезды;" - Бытие 1:14-16', feasts: { new_year: "Рош Ходешим (Новый Год)", pesach: "Песах (Пасха)", ub: "Хаг а-Мацот (Опресноки)", bikkurim: "Йом а-Биккурим (Первые Плоды)", shavuot: "Шавуот (Седмицы)", teruah: "Йом Труа (Труба)", kippur: "Йом Киппур (Искупление)", sukkot: "Суккот (Кущи)" }, status_memorial: "Памятный / Маркер Времени" },
+            zh: { title: "天体日历转换器", subtitle: "根据三位见证人（日、月、星/亚笔）的逻辑", conv_title: "日期转换器", lbl_greg_date: "输入异教（公历）日期：", btn_calculate: "计算", age_title: "经文年龄计算器", lbl_birth_date: "输入您的异教出生日期：", btn_calc_age: "计算年龄", init_age_msg: "输入您的出生日期以查看您的经文年龄。", feasts_title: "节期时间表", lbl_ref_year: "参考年份：", pagan_date: "异教日期", scr_year: "经文年份", scr_month: "经文月份", scr_day: "经文日期", status_new_moon: "新月日", status_shabbat: "安息日", status_regular: "普通日", status_mandatory: "强制遵守", status_work_day: "工作日", age_born_on: "您出生于：", age_your_age: "您的经文年龄：", years: "岁", months: "月", days: "日", next_cycle: "下一个周期完成", previous: "以前：", next: "下一个：", footer: '"神说、天上要有光体、可以分昼夜、作记号、定节令、日子、年岁．并要发光在天空、普照在地上．事就这样成了。于是 神造了两个大光、大的管昼、小的管夜．又造众星。" - 创世记 1:14-16', feasts: { new_year: "罗什·乔达辛（新年）", pesach: "逾越节", ub: "无酵节", bikkurim: "初熟节", shavuot: "七七节", teruah: "吹角节", kippur: "赎罪日", sukkot: "住棚节" }, status_memorial: "纪念 / 时间标记" },
+            ja: { title: "天体暦変換ツール", subtitle: "三人の証人（太陽、月、星／アビブ）の論理に基づく", conv_title: "日付変換", lbl_greg_date: "異教（グレゴリオ）暦の日付を入力：", btn_calculate: "計算", age_title: "聖書年齢計算機", lbl_birth_date: "異教の生年月日を入力：", btn_calc_age: "年齢を計算", init_age_msg: "生年月日を入力して聖書年齢を確認してください。", feasts_title: "祭りのタイムライン", lbl_ref_year: "参照年：", pagan_date: "異教の日付", scr_year: "聖書年", scr_month: "聖書月", scr_day: "聖書日", status_new_moon: "新月の日", status_shabbat: "シャバット", status_regular: "通常の日", status_mandatory: "必須の遵守", status_work_day: "労働日", age_born_on: "あなたは生まれました：", age_your_age: "あなたの聖書年齢：", years: "年", months: "月", days: "日", next_cycle: "次のサイクル完了", previous: "前：", next: "次：", footer: '"神は言われた、「天のおおぞらに、昼と夜を分ける光体があり、季節、日、年を示す記号となり、また天のおおぞらにあって地を照らす光体となれ」。そしてそのようになった。神は二つの大きな光体を造り、大きい光体に昼をつかさどらせ、小さい光体に夜をつかさどらせ、また星を造られた。" - 創世記 1:14-16', feasts: { new_year: "ロシュ・ホダシム（新年）", pesach: "過越", ub: "種入れぬパンの祭り", bikkurim: "初穂の日", shavuot: "七週の祭り", teruah: "ラッパの日", kippur: "贖罪日", sukkot: "仮庵の祭り" }, status_memorial: "記念 / タイムマーカー" },
+            sw: { title: "Kibadilishi cha Kalenda ya Mbinguni", subtitle: "Kulingana na mantiki ya Mashahidi Watatu (Jua, Mwezi & Nyota/Abib)", conv_title: "Kibadilishi cha Tarehe", lbl_greg_date: "Ingiza Tarehe ya Kipagani (Gregorian):", btn_calculate: "Hesabu", age_title: "Kikokotoo cha Umri wa Maandiko", lbl_birth_date: "Ingiza Tarehe yako ya Kuzaliwa Kipagani:", btn_calc_age: "Hesabu Umri", init_age_msg: "Ingiza tarehe yako ya kuzaliwa kuona Umri wako wa Maandiko.", feasts_title: "Muda wa Sikukuu", lbl_ref_year: "Mwaka wa Referensi:", pagan_date: "Tarehe ya Kipagani", scr_year: "Mwaka wa Maandiko", scr_month: "Mwezi wa Maandiko", scr_day: "Siku ya Maandiko", status_new_moon: "Siku ya Mwezi Mpya", status_shabbat: "Shabbat", status_regular: "Siku ya Kawaida", status_mandatory: "Kuangelikia Kunapaswa", status_work_day: "Siku ya Kazi", age_born_on: "Ulizaliwa tarehe:", age_your_age: "Umri wako wa Maandiko:", years: "Miaka", months: "Mi", days: "Siku", next_cycle: "Kukamilisha Mzunguko Ujao", previous: "Iliyopita:", next: "Ipi ijayo:", footer: '"Mungu akasema, Iwe na mianga katika anga la mbinguni, ili itenganishe mchana na usiku; na iwe ishara, na majira, na siku, na mwaka. Na iwe mianga katika anga la mbinguni, ili iangaze dunia. Ikawa hivyo. Mungu akafanya mianga miwili mikubwa: mng\'aro mkubwa kwa ajili ya kuitawala mchana, na mng\'aro mdogo kwa ajili ya kuitawala usiku; pamoja na nyota." - Mwanzo 1:14-16', feasts: { new_year: "Rosh Chodashim (Mwaka Mpya)", pesach: "Pasaka", ub: "Sikukuu ya Mikate Isiyochachaa", bikkurim: "Siku ya Matunda ya Kwanza", shavuot: "Sikukuu ya Wiki", teruah: "Siku ya Baragumu", kippur: "Siku ya Upatanisho", sukkot: "Sikukuu ya Vibanda" }, status_memorial: "Ukumbusho / Alama ya Wakati" },
+            yo: { title: "Olitunse Kalenda Celestial", subtitle: "Gẹgẹbi imọran ti Eleru Meta (Oorun, Osupa & Awọn Star/Abib)", conv_title: "Olitunse Ojo", lbl_greg_date: "Te Ojo Pagan (Gregorian) sii:", btn_calculate: "Ṣe Iṣiro", age_title: "Ero Iwadi Ọjọ-ori Bibeli", lbl_birth_date: "Te Ojo Ibimọ Pagan rẹ sii:", btn_calc_age: "Ṣe Iṣiro Ọjọ-ori", init_age_msg: "Te ojo ibimọ rẹ lati ri Ọjọ-ori Bibeli rẹ.", feasts_title: "Akoko ayẹyẹ", lbl_ref_year: "Odun Itọkasi:", pagan_date: "Ojo Pagan", scr_year: "Odun Bibeli", scr_month: "Osu Bibeli", scr_day: "Ojo Bibeli", status_new_moon: "Ojo Osupa Tuntun", status_shabbat: "Shabbat", status_regular: "Ojo Deede", status_mandatory: "Ainiyan lati ṣe", status_work_day: "Ojo Iṣẹ", age_born_on: "A bi o ni:", age_your_age: "Ọjọ-ori Bibeli rẹ:", years: "Odun", months: "Osu", days: "Ojo", next_cycle: "Ipari Cycle Tokan", previous: "Ti tẹlẹ:", next: "Ti n bọ:", footer: '"Eloheim wi, Ki a wole imọlẹ ninu afonifoji orun, lati ya ojo oru, ki won si je ami, ki won si je akoko, ojo ati odun. Ki won si je imọlẹ ninu afonifoji orun, lati tanmọlẹ lori aiye. O si ri bẹ. Eloheim si ṣe imọlẹ meji nla: imọlẹ nla lati ṣakoso ojo, ati imọlẹ kekere lati ṣakoso oru; O si ṣe awọn irawọ naa." - Genesi 1:14-16', feasts: { new_year: "Rosh Chodashim (Odun Tuntun)", pesach: "Pesach (Easter)", ub: "Ayẹyẹ Ounje Aise", bikkurim: "Ojo Akọkọ Ereso", shavuot: "Ayẹyẹ Ọsẹ", teruah: "Ojo Ipe", kippur: "Ojo Ipari Ẹṣẹ", sukkot: "Ayẹyẹ Booth" }, status_memorial: "Iransẹ / Aami Akoko" }
         };
 
         let currentLang = 'en';
 
         function changeLanguage(lang) {
             currentLang = lang;
-            document.getElementById('lang-switch').value = lang;
             
-            // Update Static Elements
-            document.getElementById('title').innerText = translations[lang].title;
-            document.getElementById('subtitle').innerText = translations[lang].subtitle;
-            document.getElementById('conv-title').innerText = translations[lang].conv_title;
-            document.getElementById('lbl-greg-date').innerText = translations[lang].lbl_greg_date;
-            document.getElementById('btn-calculate').innerText = translations[lang].btn_calculate;
-            document.getElementById('age-title').innerText = translations[lang].age_title;
-            document.getElementById('lbl-birth-date').innerText = translations[lang].lbl_birth_date;
-            document.getElementById('btn-calc-age').innerText = translations[lang].btn_calc_age;
-            document.getElementById('init-age-msg').innerText = translations[lang].init_age_msg;
-            document.getElementById('feasts-title').innerText = translations[lang].feasts_title;
-            document.getElementById('lbl-ref-year').innerText = translations[lang].lbl_ref_year;
-            document.getElementById('footer-verse').innerText = translations[lang].footer;
+            // Reset Google Translate if using manual buttons
+            if (window.google && window.google.translate) {
+                var select = document.querySelector('.goog-te-combo');
+                if (select) select.value = '';
+            }
 
-            // Re-run dynamic content functions
-            convertDate();
-            calculateFeastsForYear();
-            // calculateAge(); // Optional: only if we want to 'retroactively' update a result already shown
+            // Set Direction for Hebrew and Arabic
+            if (lang === 'he' || lang === 'ar') {
+                document.body.style.direction = 'rtl';
+                document.body.style.fontFamily = "'Lato', sans-serif"; 
+            } else {
+                document.body.style.direction = 'ltr';
+            }
+
+            // Update content
+            if (translations[lang]) {
+                const T = translations[lang];
+                document.getElementById('title').innerText = T.title;
+                document.getElementById('subtitle').innerText = T.subtitle;
+                document.getElementById('conv-title').innerText = T.conv_title;
+                document.getElementById('lbl-greg-date').innerText = T.lbl_greg_date;
+                document.getElementById('btn-calculate').innerText = T.btn_calculate;
+                document.getElementById('age-title').innerText = T.age_title;
+                document.getElementById('lbl-birth-date').innerText = T.lbl_birth_date;
+                document.getElementById('btn-calc-age').innerText = T.btn_calc_age;
+                document.getElementById('init-age-msg').innerText = T.init_age_msg;
+                document.getElementById('feasts-title').innerText = T.feasts_title;
+                document.getElementById('lbl-ref-year').innerText = T.lbl_ref_year;
+                document.getElementById('footer-verse').innerText = T.footer;
+                
+                // Re-run dynamic displays
+                convertDate();
+                calculateFeastsForYear();
+            }
         }
 
-        // --- CONFIGURATION & ANCHORS ---
+        // --- CORE LOGIC ---
         const ANCHOR_YEAR_6000 = new Date(2025, 3, 13, 12, 0, 0); 
         const ANCHOR_YEAR_6001 = new Date(2026, 4, 2, 12, 0, 0);  
 
-        // --- THREE WITNESSES LOGIC ---
         function isLeapYear(scriptYear) {
             if (scriptYear === 6000) return true;
             if (scriptYear === 6001) return false;
@@ -477,7 +544,6 @@
             return startDate;
         }
 
-        // --- CORE DATE ENGINE ---
         function getScripturalDate(gregorianDateObj) {
             let inputDate = new Date(gregorianDateObj);
             inputDate.setHours(12,0,0,0); 
@@ -545,6 +611,17 @@
                 const userLang = navigator.language || navigator.userLanguage; 
                 if (userLang.startsWith('pt')) currentLang = 'pt';
                 else if (userLang.startsWith('es')) currentLang = 'es';
+                else if (userLang.startsWith('de')) currentLang = 'de';
+                else if (userLang.startsWith('fr')) currentLang = 'fr';
+                else if (userLang.startsWith('it')) currentLang = 'it';
+                else if (userLang.startsWith('he')) currentLang = 'he';
+                else if (userLang.startsWith('ar')) currentLang = 'ar';
+                else if (userLang.startsWith('ru')) currentLang = 'ru';
+                else if (userLang.startsWith('zh')) currentLang = 'zh';
+                else if (userLang.startsWith('ja')) currentLang = 'ja';
+                else if (userLang.startsWith('ko')) currentLang = 'ko';
+                else if (userLang.startsWith('sw')) currentLang = 'sw';
+                else if (userLang.startsWith('yo')) currentLang = 'yo';
                 else currentLang = 'en';
 
                 changeLanguage(currentLang);
@@ -576,7 +653,6 @@
             }
         };
 
-        // --- HELPERS ---
         function addDays(date, days) {
             const result = new Date(date);
             result.setDate(result.getDate() + days);
@@ -584,7 +660,21 @@
         }
 
         function formatDate(d) {
-            return d.toLocaleDateString(currentLang, { month: 'short', day: 'numeric', year: 'numeric' });
+            // Use Intl.DateTimeFormat for robust localization
+            try {
+                return d.toLocaleDateString(currentLang, { month: 'short', day: 'numeric', year: 'numeric' });
+            } catch (e) {
+                return d.toLocaleDateString(); // Fallback
+            }
+        }
+        
+        function formatWeekdayDate(d) {
+            // Specifically for the "Pagan Date" line to include Weekday (localized)
+            try {
+                 return d.toLocaleDateString(currentLang, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            } catch (e) {
+                 return d.toLocaleDateString();
+            }
         }
 
         function getGregorianRange(scriptYear) {
@@ -601,7 +691,6 @@
             return y;
         }
 
-        // --- CONVERTER UI ---
         function convertDate() {
             const input = document.getElementById('gregorian-date');
             if (!input.value) return;
@@ -609,7 +698,7 @@
             const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             const result = getScripturalDate(dateObj);
             const resultDiv = document.getElementById('result-display');
-            const T = translations[currentLang];
+            const T = translations[currentLang] || translations['en'];
 
             let statusHtml = "";
             if (result.isNewMoon) {
@@ -620,8 +709,11 @@
                 statusHtml = `<span class="alert-title text-green">${T.status_regular}</span><span class="status-subtitle">${T.status_work_day}</span>`;
             }
 
+            // LOCALIZED DATE STRING (Weekday + Date)
+            const localizedDateStr = formatWeekdayDate(dateObj);
+
             resultDiv.innerHTML = `
-                <p>${T.pagan_date}: ${dateObj.toDateString()}</p>
+                <p>${T.pagan_date}: ${localizedDateStr}</p>
                 <hr style="border-color: #333;">
                 <p>${T.scr_year}: <span class="highlight">${result.year}</span></p>
                 <p>${T.scr_month}: <span class="highlight">${result.month}</span></p>
@@ -631,11 +723,10 @@
             `;
         }
 
-        // --- AGE CALCULATOR ---
         function calculateAge() {
             const input = document.getElementById('birth-date');
             const resultDiv = document.getElementById('age-result-display');
-            const T = translations[currentLang];
+            const T = translations[currentLang] || translations['en'];
             
             if (!input.value) {
                 resultDiv.innerHTML = `<p style='color:red'>${T.lbl_birth_date}</p>`;
@@ -650,7 +741,7 @@
             today.setHours(12,0,0,0);
 
             if (birthDate > today) {
-                resultDiv.innerHTML = "<p style='color:red'>Birth date cannot be in the future.</p>"; // Logic error if trans not loaded
+                resultDiv.innerHTML = "<p style='color:red'>Birth date cannot be in the future.</p>";
                 return;
             }
 
@@ -667,7 +758,6 @@
             let currentSD = { ...birthSD };
             let currentGregorian = new Date(birthDate);
 
-            // Count Years
             while(true) {
                 let nextBirthdaySD = { year: currentSD.year + 1, month: birthSD.month, day: birthSD.day };
                 let nextBirthday = getGregorianFromScriptural(nextBirthdaySD.year, nextBirthdaySD.month, nextBirthdaySD.day);
@@ -678,7 +768,6 @@
                 } else { break; }
             }
 
-            // Count Months
             let monthSafety = 0;
             while(monthSafety < 14) {
                 monthSafety++;
@@ -697,11 +786,9 @@
                 } else { break; }
             }
 
-            // Count Days
             let diffTime = Math.abs(today - currentGregorian);
             days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            // Next Cycle
             let nextBirthdaySD = { year: birthSD.year + years + 1, month: birthSD.month, day: birthSD.day };
             let nextBirthdayGreg = getGregorianFromScriptural(nextBirthdaySD.year, nextBirthdaySD.month, nextBirthdaySD.day);
 
@@ -739,14 +826,13 @@
             `;
         }
 
-        // --- FEAST CALCULATOR ---
         function calculateFeastsForYear() {
             const targetYear = parseInt(document.getElementById('year-select').value);
             const tableBody = document.getElementById('feast-table-container');
             const headerDiv = document.getElementById('feast-year-header');
             const today = new Date();
             today.setHours(12,0,0,0);
-            const T = translations[currentLang];
+            const T = translations[currentLang] || translations['en'];
 
             const gregorianRange = getGregorianRange(targetYear);
             headerDiv.innerHTML = `${T.scr_year}: <span class="highlight">${targetYear}</span><br>
