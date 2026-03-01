@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestial Calendar Converter</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    
+    <!-- STYLES -->
+    <style>
+        :root {
+            --primary-gold: #e6c47a;
+            --secondary-blue: #1a2a3a;
+            --dark-bg: #0f1519;
+            --text-light: #f0f0f0;
+            --accent-green: #4caf50;
+            --accent-blue: #64b5f6;
+            --alert-red: #ff6b6b; /* Defined Red for mandatory */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Lato', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid var(--primary-gold);
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif; 
+            color: var(--primary-gold);
+            margin: 0;
+        }
+
+        .subtitle { font-style: italic; opacity: 0.8; font-size: 0.9rem; }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 1rem;
+            display: grid;
+            gap: 2rem;
+        }
+
+        .card {
+            background: rgba(26, 42, 58, 0.9);
+            border: 1px solid var(--primary-gold);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="date"], select {
+            padding: 0.5rem;
+            border: 1px solid var(--primary-gold);
+            background: #fff;
+            color: #000;
+            font-family: monospace;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 0.6rem 1.5rem;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: transform 0.2s;
+        }
+
+        button:hover { transform: scale(1.05); }
+
+        .result-box {
+            background: #000;
+            border-left: 4px solid var(--primary-gold);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .highlight { color: var(--primary-gold); font-weight: bold; }
+        
+        /* Alert Styles */
+        .alert-title { 
+            font-weight: bold; 
+            font-size: 1.3rem; 
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Red for Mandatory Observances (New Moon, Shabbat, Feasts) */
+        .text-red { color: var(--alert-red); }
+        
+        /* Green for Regular Days */
+        .text-green { color: var(--accent-green); }
+        
+        .status-subtitle { font-size: 0.9rem; color: #aaa; font-style: italic; }
+        .status-subtitle-red { font-size: 0.9rem; color: var(--alert-red); font-style: italic; }
+
+        /* --- TABLE STYLES --- */
+        .feast-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            direction: rtl; /* Keeps columns: Future(Left) | Past(Right) */
+        }
+
+        .feast-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            vertical-align: top;
+        }
+
+        /* Right Column (Past) - First in RTL */
+        .col-past {
+            width: 50%;
+            text-align: left; 
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Left Column (Future) - Second in RTL */
+        .col-future {
+            width: 50%;
+            text-align: right;
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        .feast-row-header {
+            background: rgba(0,0,0,0.3);
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            color: var(--primary-gold);
+            font-size: 1.1rem;
+        }
+
+        .feast-row-info {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #aaa;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .label-past, .label-future, .date-text { direction: ltr; display: inline-block; }
+        .label-past { font-size: 0.8rem; color: #888; display: block; margin-bottom: 0.2rem; }
+        .label-future { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 0.2rem; }
+        
+        /* Table Status Colors */
+        .mandatory-status { color: var(--alert-red); font-weight: bold; }
+        .memorial-status { color: #888; font-style: italic; }
+        
+        .year-display {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--primary-gold);
+            margin-bottom: 1rem;
+            font-family: 'Cinzel', serif;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: #888;
+            border-top: 1px solid #333;
+            margin-top: 2rem;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <header>
+        <h1>Celestial Calendar Converter</h1>
+        <p class="subtitle">According to the logic of the Lights in the Firmament</p>
+    </header>
+
+    <main class="container">
+        
+        <!-- Converter Section -->
+        <section class="card converter-card">
+            <h2>Date Converter</h2>
+            <div class="input-group">
+                <label for="gregorian-date">Enter Pagan (Gregorian) Date:</label>
+                <input type="date" id="gregorian-date">
+                <button onclick="convertDate()">Calculate</button>
+            </div>
+            
+            <div id="result-display" class="result-box">
+                <p>Initializing...</p>
+            </div>
+        </section>
+
+        <!-- Feasts Section -->
+        <section class="card feasts-card">
+            <div class="input-group" style="margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 1rem;">
+                <h2 style="margin: 0;">Feasts Timeline</h2>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <label for="year-select">Reference Year:</label>
+                    <select id="year-select" onchange="calculateFeastsForYear()">
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div id="feast-year-header" class="year-display">
+                <!-- Year Header -->
+            </div>
+
+            <table class="feast-table" id="feast-table-container">
+                <!-- Table populated by JS -->
+            </table>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also." - Genesis 1:14-16</p>
+    </footer>
+
+    <!-- SCRIPT -->
+    <script>
+        // --- CONFIGURATION & ANCHORS ---
+        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13); // April 13, 2025
+        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2);  // May 2, 2026
+        
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            try {
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                document.getElementById('gregorian-date').value = `${yyyy}-${mm}-${dd}`;
+                
+                // Populate Year Selector
+                const select = document.getElementById('year-select');
+                const currentActiveYear = findCurrentActiveYear(today);
+                
+                for (let y = 1; y <= 8000; y++) {
+                    const option = document.createElement("option");
+                    option.value = y;
+                    const gregorianRange = getGregorianRange(y);
+                    option.text = `${y} (${gregorianRange})`;
+                    if (y === currentActiveYear) option.selected = true; 
+                    select.appendChild(option);
+                }
+
+                convertDate();
+                calculateFeastsForYear();
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('result-display').innerHTML = "<p style='color:red'>Startup Error: " + e.message + "</p>";
+            }
+        };
+
+        // --- HELPERS ---
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function formatDate(d) {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getYearStartDate(scriptYear) {
+            if (scriptYear === 6000) return ANCHOR_YEAR_6000;
+            if (scriptYear === 6001) return ANCHOR_YEAR_6001;
+            
+            const yearsDiff = scriptYear - 6000;
+            const totalDays = Math.round(yearsDiff * 354.367);
+            
+            let startDate = new Date(ANCHOR_YEAR_6000);
+            startDate.setDate(startDate.getDate() + totalDays);
+            return startDate;
+        }
+
+        function getGregorianRange(scriptYear) {
+            const startDate = getYearStartDate(scriptYear);
+            const startYear = startDate.getFullYear();
+            return `${startYear}/${startYear + 1}`;
+        }
+
+        function findCurrentActiveYear(today) {
+            if (today >= ANCHOR_YEAR_6001) return 6001;
+            if (today >= ANCHOR_YEAR_6000) return 6000;
+            const diffTime = today - ANCHOR_YEAR_6000;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const yearsDiff = Math.floor(diffDays / 354);
+            return 6000 + yearsDiff;
+        }
+
+        // --- DATE CONVERTER ---
+        function getScripturalDate(gregorianDateObj) {
+            const inputDate = new Date(gregorianDateObj);
+            inputDate.setHours(12,0,0,0); 
+            
+            let year, month, day;
+            
+            if (inputDate >= ANCHOR_YEAR_6001) {
+                year = 6001;
+                const diffDays = Math.floor((inputDate - ANCHOR_YEAR_6001) / (1000 * 60 * 60 * 24));
+                let daysRemaining = diffDays;
+                let monthIndex = 1;
+                while(true) {
+                    let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
+                    if (daysRemaining < currentMonthLen) { day = daysRemaining + 1; month = monthIndex; break; }
+                    daysRemaining -= currentMonthLen; monthIndex++;
+                }
+            } else if (inputDate >= ANCHOR_YEAR_6000) {
+                year = 6000;
+                const diffDays = Math.floor((inputDate - ANCHOR_YEAR_6000) / (1000 * 60 * 60 * 24));
+                let daysRemaining = diffDays;
+                let monthIndex = 1;
+                while(true) {
+                    let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
+                    if (daysRemaining < currentMonthLen) { day = daysRemaining + 1; month = monthIndex; break; }
+                    daysRemaining -= currentMonthLen; monthIndex++;
+                }
+            } else {
+                return { error: "Date is before the Scriptural Year start (Abib 2025)." };
+            }
+
+            // Determine Special Days
+            const isNewMoon = (day === 1);
+            const isShabbat = (day === 8 || day === 15 || day === 22 || day === 29);
+
+            return { year, month, day, isNewMoon, isShabbat };
+        }
+
+        function convertDate() {
+            const input = document.getElementById('gregorian-date');
+            if (!input.value) return;
+            const parts = input.value.split('-');
+            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const result = getScripturalDate(dateObj);
+            const resultDiv = document.getElementById('result-display');
+
+            if (result.error) {
+                resultDiv.innerHTML = `<p style="color:red;">${result.error}</p>`;
+            } else {
+                let statusHtml = "";
+                
+                // Logic: Red for Mandatory (New Moon, Shabbat), Green for Regular
+                if (result.isNewMoon) {
+                    statusHtml = `
+                        <span class="alert-title text-red">New Moon Day</span>
+                        <span class="status-subtitle-red">Mandatory Observance</span>
+                    `;
+                } else if (result.isShabbat) {
+                    statusHtml = `
+                        <span class="alert-title text-red">Shabbat</span>
+                        <span class="status-subtitle-red">Mandatory Observance</span>
+                    `;
+                } else {
+                    statusHtml = `
+                        <span class="alert-title text-green">Regular Day</span>
+                        <span class="status-subtitle">Work Day</span>
+                    `;
+                }
+
+                resultDiv.innerHTML = `
+                    <p>Pagan Date: ${dateObj.toDateString()}</p>
+                    <hr style="border-color: #333;">
+                    <p>Scriptural Year: <span class="highlight">${result.year}</span></p>
+                    <p>Scriptural Month: <span class="highlight">${result.month}</span></p>
+                    <p>Scriptural Day: <span class="highlight">${result.day}</span></p>
+                    <hr style="border-color: #333;">
+                    <div>${statusHtml}</div>
+                `;
+            }
+        }
+
+        // --- FEAST CALCULATOR ---
+        function calculateFeastsForYear() {
+            const targetYear = parseInt(document.getElementById('year-select').value);
+            const tableBody = document.getElementById('feast-table-container');
+            const headerDiv = document.getElementById('feast-year-header');
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            const gregorianRange = getGregorianRange(targetYear);
+            headerDiv.innerHTML = `Scriptural Year: <span class="highlight">${targetYear}</span><br>
+            <span style="font-size:0.8rem; color:#888;">${gregorianRange}</span>`;
+
+            const getFeastDate = (scriptYear, feastOffset) => {
+                const yearStart = getYearStartDate(scriptYear);
+                return addDays(yearStart, feastOffset);
+            };
+
+            // Feast Definitions
+            const feasts = [
+                { 
+                    name: "Rosh Chodashim (New Year)", 
+                    offset: 0, 
+                    isRange: false,
+                    ref: "Exodus 12:2",
+                    mandatory: false // Informational
+                },
+                { 
+                    name: "Pesach (Passover)", 
+                    offset: 13, // Eve of 14th
+                    isRange: false,
+                    ref: "Leviticus 23:5",
+                    mandatory: true
+                },
+                { 
+                    name: "Chag HaMatzot (Unleavened Bread)", 
+                    offset: 14, 
+                    isRange: true, 
+                    endOffset: 20,
+                    ref: "Leviticus 23:6-8",
+                    mandatory: true
+                },
+                { 
+                    name: "Yom HaBikkurim (First Fruits)", 
+                    offset: 16, 
+                    isRange: false,
+                    ref: "Leviticus 23:9-14",
+                    mandatory: true
+                },
+                { 
+                    name: "Shavuot (Feast of Weeks)", 
+                    offset: 16 + 50, 
+                    isRange: false,
+                    ref: "Leviticus 23:15-21",
+                    mandatory: true
+                },
+                { 
+                    name: "Yom Teruah (Trumpets)", 
+                    offset: 177, 
+                    isRange: false,
+                    ref: "Leviticus 23:24-25",
+                    mandatory: true
+                },
+                { 
+                    name: "Yom Kippur (Atonement)", 
+                    offset: 177 + 9, 
+                    isRange: false,
+                    ref: "Leviticus 23:27-32",
+                    mandatory: true
+                },
+                { 
+                    name: "Sukkot (Booths)", 
+                    offset: 177 + 14, 
+                    isRange: true, 
+                    endOffset: 177 + 21,
+                    ref: "Leviticus 23:34-36",
+                    mandatory: true
+                }
+            ];
+
+            let html = "";
+
+            feasts.forEach(feast => {
+                let dateThisYear = getFeastDate(targetYear, feast.offset);
+                let dateDisplayPast, dateDisplayFuture;
+
+                if (dateThisYear < today) {
+                    dateDisplayPast = dateThisYear;
+                    dateDisplayFuture = getFeastDate(targetYear + 1, feast.offset);
+                } else {
+                    dateDisplayFuture = dateThisYear;
+                    dateDisplayPast = getFeastDate(targetYear - 1, feast.offset);
+                }
+
+                let pastStr = formatDate(dateDisplayPast);
+                let futureStr = formatDate(dateDisplayFuture);
+
+                if (feast.isRange) {
+                    let endPast = getFeastDate(targetYear - 1, feast.endOffset);
+                    let endFuture = getFeastDate(targetYear + 1, feast.endOffset);
+                    
+                    if (dateThisYear < today) {
+                        endPast = getFeastDate(targetYear, feast.endOffset);
+                    } else {
+                        endFuture = getFeastDate(targetYear, feast.endOffset);
+                    }
+                    
+                    pastStr = `${formatDate(dateDisplayPast)} - ${formatDate(endPast)}`;
+                    futureStr = `${formatDate(dateDisplayFuture)} - ${formatDate(endFuture)}`;
+                }
+
+                // Status Text: Red for Mandatory, Gray for Memorial
+                const statusText = feast.mandatory 
+                    ? '<span class="mandatory-status">Mandatory Observance</span>' 
+                    : '<span class="memorial-status">Memorial / Time Marker</span>';
+
+                html += `
+                <tr>
+                    <td class="feast-row-header" colspan="2">${feast.name}</td>
+                </tr>
+                <tr class="feast-row-info">
+                    <td colspan="2">${feast.ref} | ${statusText}</td>
+                </tr>
+                <tr>
+                    <td class="col-past">
+                        <span class="label-past">Previous:</span>
+                        <span class="date-text">${pastStr}</span>
+                    </td>
+                    <td class="col-future">
+                        <span class="label-future">Next:</span>
+                        <span class="date-text">${futureStr}</span>
+                    </td>
+                </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
