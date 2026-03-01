@@ -45,6 +45,7 @@
             padding: 2rem;
             background: rgba(0, 0, 0, 0.5);
             border-bottom: 1px solid var(--primary-gold);
+            position: relative;
         }
 
         h1, h2 {
@@ -54,6 +55,24 @@
         }
 
         .subtitle { font-style: italic; opacity: 0.8; font-size: 0.9rem; }
+
+        /* Language Selector */
+        .lang-selector {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 5px;
+            border-radius: 4px;
+            font-family: 'Lato', sans-serif;
+            cursor: pointer;
+        }
+        .lang-selector option {
+            background: var(--dark-bg);
+            color: var(--text-light);
+        }
 
         .container {
             max-width: 900px;
@@ -186,19 +205,26 @@
     <div class="stars"></div>
 
     <header>
-        <h1>Celestial Calendar Converter</h1>
-        <p class="subtitle">According to the logic of the Three Witnesses (Sun, Moon, & Stars/Abib)</p>
+        <!-- Language Selector -->
+        <select id="lang-switch" class="lang-selector" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="pt">Português</option>
+            <option value="es">Español</option>
+        </select>
+
+        <h1 id="title">Celestial Calendar Converter</h1>
+        <p class="subtitle" id="subtitle">According to the logic of the Three Witnesses (Sun, Moon, & Stars/Abib)</p>
     </header>
 
     <main class="container">
         
         <!-- Converter Section -->
         <section class="card converter-card">
-            <h2>Date Converter</h2>
+            <h2 id="conv-title">Date Converter</h2>
             <div class="input-group">
-                <label for="gregorian-date">Enter Pagan (Gregorian) Date:</label>
+                <label for="gregorian-date" id="lbl-greg-date">Enter Pagan (Gregorian) Date:</label>
                 <input type="date" id="gregorian-date">
-                <button onclick="convertDate()">Calculate</button>
+                <button id="btn-calculate" onclick="convertDate()">Calculate</button>
             </div>
             
             <div id="result-display" class="result-box">
@@ -208,24 +234,24 @@
 
         <!-- Age Calculator Section -->
         <section class="card converter-card">
-            <h2>Scriptural Age Calculator</h2>
+            <h2 id="age-title">Scriptural Age Calculator</h2>
             <div class="input-group">
-                <label for="birth-date">Enter Your Pagan Birth Date:</label>
+                <label for="birth-date" id="lbl-birth-date">Enter Your Pagan Birth Date:</label>
                 <input type="date" id="birth-date">
-                <button onclick="calculateAge()">Calculate Age</button>
+                <button id="btn-calc-age" onclick="calculateAge()">Calculate Age</button>
             </div>
             
             <div id="age-result-display" class="result-box">
-                <p>Enter your birth date to see your Scriptural Age.</p>
+                <p id="init-age-msg">Enter your birth date to see your Scriptural Age.</p>
             </div>
         </section>
 
         <!-- Feasts Section -->
         <section class="card feasts-card">
             <div class="input-group" style="margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 1rem;">
-                <h2 style="margin: 0;">Feasts Timeline</h2>
+                <h2 style="margin: 0;" id="feasts-title">Feasts Timeline</h2>
                 <div style="display: flex; gap: 1rem; align-items: center;">
-                    <label for="year-select">Reference Year:</label>
+                    <label for="year-select" id="lbl-ref-year">Reference Year:</label>
                     <select id="year-select" onchange="calculateFeastsForYear()">
                         <!-- Options populated by JS -->
                     </select>
@@ -244,17 +270,172 @@
     </main>
 
     <footer>
-        <p>"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: He made the stars also." - Genesis 1:14-16</p>
+        <p id="footer-verse">"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: He made the stars also." - Genesis 1:14-16</p>
     </footer>
 
     <!-- SCRIPT -->
     <script>
+        // --- TRANSLATIONS ---
+        const translations = {
+            en: {
+                title: "Celestial Calendar Converter",
+                subtitle: "According to the logic of the Three Witnesses (Sun, Moon, & Stars/Abib)",
+                conv_title: "Date Converter",
+                lbl_greg_date: "Enter Pagan (Gregorian) Date:",
+                btn_calculate: "Calculate",
+                age_title: "Scriptural Age Calculator",
+                lbl_birth_date: "Enter Your Pagan Birth Date:",
+                btn_calc_age: "Calculate Age",
+                init_age_msg: "Enter your birth date to see your Scriptural Age.",
+                feasts_title: "Feasts Timeline",
+                lbl_ref_year: "Reference Year:",
+                pagan_date: "Pagan Date",
+                scr_year: "Scriptural Year",
+                scr_month: "Scriptural Month",
+                scr_day: "Scriptural Day",
+                status_new_moon: "New Moon Day",
+                status_shabbat: "Shabbat",
+                status_regular: "Regular Day",
+                status_mandatory: "Mandatory Observance",
+                status_work_day: "Work Day",
+                age_born_on: "You were born on:",
+                age_your_age: "Your Scriptural Age:",
+                years: "Years",
+                months: "Months",
+                days: "Days",
+                next_cycle: "Next Cycle Completion",
+                previous: "Previous:",
+                next: "Next:",
+                footer: '"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: He made the stars also." - Genesis 1:14-16',
+                feasts: {
+                    new_year: "Rosh Chodashim (New Year)",
+                    pesach: "Pesach (Passover)",
+                    ub: "Chag HaMatzot (Unleavened Bread)",
+                    bikkurim: "Yom HaBikkurim (First Fruits)",
+                    shavuot: "Shavuot (Feast of Weeks)",
+                    teruah: "Yom Teruah (Trumpets)",
+                    kippur: "Yom Kippur (Atonement)",
+                    sukkot: "Sukkot (Booths)"
+                },
+                status_memorial: "Memorial / Time Marker"
+            },
+            pt: {
+                title: "Conversor de Calendário Celestial",
+                subtitle: "Segundo a lógica das Três Testemunhas (Sol, Lua & Estrelas/Abib)",
+                conv_title: "Conversor de Datas",
+                lbl_greg_date: "Digite a Data Pagã (Gregoriana):",
+                btn_calculate: "Calcular",
+                age_title: "Calculadora de Idade Escriturística",
+                lbl_birth_date: "Digite sua Data de Nascimento Pagã:",
+                btn_calc_age: "Calcular Idade",
+                init_age_msg: "Digite sua data de nascimento para ver sua Idade Escriturística.",
+                feasts_title: "Linha do Tempo das Festas",
+                lbl_ref_year: "Ano de Referência:",
+                pagan_date: "Data Pagã",
+                scr_year: "Ano Escriturístico",
+                scr_month: "Mês Escriturístico",
+                scr_day: "Dia Escriturístico",
+                status_new_moon: "Dia da Lua Nova",
+                status_shabbat: "Shabbat",
+                status_regular: "Dia Regular",
+                status_mandatory: "Observância Obrigatória",
+                status_work_day: "Dia de Trabalho",
+                age_born_on: "Você nasceu em:",
+                age_your_age: "Sua Idade Escriturística:",
+                years: "Anos",
+                months: "Meses",
+                days: "Dias",
+                next_cycle: "Próximo Ciclo Completo",
+                previous: "Anterior:",
+                next: "Próximo:",
+                footer: '"E disse Elohim: Haja luminares na expansão dos céus, para haver separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos." - Gênesis 1:14',
+                feasts: {
+                    new_year: "Rosh Chodashim (Ano Novo)",
+                    pesach: "Pesach (Páscoa)",
+                    ub: "Chag HaMatzot (Pães Asmos)",
+                    bikkurim: "Yom HaBikkurim (Primícias)",
+                    shavuot: "Shavuot (Semanas)",
+                    teruah: "Yom Teruah (Trombetas)",
+                    kippur: "Yom Kippur (Expiação)",
+                    sukkot: "Sukkot (Tabernáculos)"
+                },
+                status_memorial: "Memorial / Marco de Tempo"
+            },
+            es: {
+                title: "Conversor de Calendario Celestial",
+                subtitle: "Según la lógica de los Tres Testigos (Sol, Luna & Estrellas/Abib)",
+                conv_title: "Conversor de Fechas",
+                lbl_greg_date: "Ingrese la Fecha Pagana (Gregoriana):",
+                btn_calculate: "Calcular",
+                age_title: "Calculadora de Edad Escritural",
+                lbl_birth_date: "Ingrese su Fecha de Nacimiento Pagana:",
+                btn_calc_age: "Calcular Edad",
+                init_age_msg: "Ingrese su fecha de nacimiento para ver su Edad Escritural.",
+                feasts_title: "Línea de Tiempo de Fiestas",
+                lbl_ref_year: "Año de Referencia:",
+                pagan_date: "Fecha Pagana",
+                scr_year: "Año Escritural",
+                scr_month: "Mes Escritural",
+                scr_day: "Día Escritural",
+                status_new_moon: "Día de Luna Nueva",
+                status_shabbat: "Shabbat",
+                status_regular: "Día Regular",
+                status_mandatory: "Observancia Obligatoria",
+                status_work_day: "Día de Trabajo",
+                age_born_on: "Usted nació en:",
+                age_your_age: "Su Edad Escritural:",
+                years: "Años",
+                months: "Meses",
+                days: "Días",
+                next_cycle: "Próximo Ciclo Completo",
+                previous: "Anterior:",
+                next: "Próximo:",
+                footer: '"Y dijo Elohim: Sean lumbreras en la expansión de los cielos para separar el día de la noche; y sean por señales, y por estaciones, y por días y años." - Génesis 1:14',
+                feasts: {
+                    new_year: "Rosh Chodashim (Año Nuevo)",
+                    pesach: "Pesach (Pascua)",
+                    ub: "Chag HaMatzot (Panes Sin Levadura)",
+                    bikkurim: "Yom HaBikkurim (Primeros Frutos)",
+                    shavuot: "Shavuot (Semanas)",
+                    teruah: "Yom Teruah (Trompetas)",
+                    kippur: "Yom Kippur (Expiación)",
+                    sukkot: "Sukkot (Tabernáculos)"
+                },
+                status_memorial: "Memorial / Marcador de Tiempo"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('lang-switch').value = lang;
+            
+            // Update Static Elements
+            document.getElementById('title').innerText = translations[lang].title;
+            document.getElementById('subtitle').innerText = translations[lang].subtitle;
+            document.getElementById('conv-title').innerText = translations[lang].conv_title;
+            document.getElementById('lbl-greg-date').innerText = translations[lang].lbl_greg_date;
+            document.getElementById('btn-calculate').innerText = translations[lang].btn_calculate;
+            document.getElementById('age-title').innerText = translations[lang].age_title;
+            document.getElementById('lbl-birth-date').innerText = translations[lang].lbl_birth_date;
+            document.getElementById('btn-calc-age').innerText = translations[lang].btn_calc_age;
+            document.getElementById('init-age-msg').innerText = translations[lang].init_age_msg;
+            document.getElementById('feasts-title').innerText = translations[lang].feasts_title;
+            document.getElementById('lbl-ref-year').innerText = translations[lang].lbl_ref_year;
+            document.getElementById('footer-verse').innerText = translations[lang].footer;
+
+            // Re-run dynamic content functions
+            convertDate();
+            calculateFeastsForYear();
+            // calculateAge(); // Optional: only if we want to 'retroactively' update a result already shown
+        }
+
         // --- CONFIGURATION & ANCHORS ---
-        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13, 12, 0, 0); // April 13, 2025 Noon
-        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2, 12, 0, 0);  // May 2, 2026 Noon
+        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13, 12, 0, 0); 
+        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2, 12, 0, 0);  
 
         // --- THREE WITNESSES LOGIC ---
-        
         function isLeapYear(scriptYear) {
             if (scriptYear === 6000) return true;
             if (scriptYear === 6001) return false;
@@ -264,7 +445,7 @@
         }
 
         function getMonthLength(monthIndex, year) {
-            if (monthIndex === 13) return 29; // 13th month
+            if (monthIndex === 13) return 29; 
             return (monthIndex % 2 === 1) ? 30 : 29;
         }
 
@@ -292,7 +473,6 @@
                     startDate.setDate(startDate.getDate() - daysInYear);
                 }
             }
-            // Ensure output is noon
             startDate.setHours(12,0,0,0);
             return startDate;
         }
@@ -345,29 +525,30 @@
             return { year: estimatedYear, month: monthIndex, day: dayCount, isNewMoon, isShabbat };
         }
 
-        // Convert Scriptural to Gregorian (Handles Day 30 fix)
         function getGregorianFromScriptural(year, month, day) {
             let yearStart = getYearStartDate(year);
-            
-            // Add months
             for (let m = 1; m < month; m++) {
                 let monthLen = getMonthLength(m, year);
                 yearStart.setDate(yearStart.getDate() + monthLen);
             }
-            
-            // Fix for Day 30: Check if requested day exceeds month length
             let targetMonthLen = getMonthLength(month, year);
             let validDay = Math.min(day, targetMonthLen);
-            
-            // Add days (Day 1 adds 0 days)
             yearStart.setDate(yearStart.getDate() + (validDay - 1));
-            yearStart.setHours(12,0,0,0); // Ensure Noon
+            yearStart.setHours(12,0,0,0);
             return yearStart;
         }
 
         // --- INITIALIZATION ---
         window.onload = function() {
             try {
+                // 1. Detect Language
+                const userLang = navigator.language || navigator.userLanguage; 
+                if (userLang.startsWith('pt')) currentLang = 'pt';
+                else if (userLang.startsWith('es')) currentLang = 'es';
+                else currentLang = 'en';
+
+                changeLanguage(currentLang);
+
                 const today = new Date();
                 const dd = String(today.getDate()).padStart(2, '0');
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -403,7 +584,7 @@
         }
 
         function formatDate(d) {
-            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return d.toLocaleDateString(currentLang, { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
         function getGregorianRange(scriptYear) {
@@ -428,33 +609,36 @@
             const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             const result = getScripturalDate(dateObj);
             const resultDiv = document.getElementById('result-display');
+            const T = translations[currentLang];
 
             let statusHtml = "";
             if (result.isNewMoon) {
-                statusHtml = `<span class="alert-title text-red">New Moon Day</span><span class="status-subtitle-red">Mandatory Observance</span>`;
+                statusHtml = `<span class="alert-title text-red">${T.status_new_moon}</span><span class="status-subtitle-red">${T.status_mandatory}</span>`;
             } else if (result.isShabbat) {
-                statusHtml = `<span class="alert-title text-red">Shabbat</span><span class="status-subtitle-red">Mandatory Observance</span>`;
+                statusHtml = `<span class="alert-title text-red">${T.status_shabbat}</span><span class="status-subtitle-red">${T.status_mandatory}</span>`;
             } else {
-                statusHtml = `<span class="alert-title text-green">Regular Day</span><span class="status-subtitle">Work Day</span>`;
+                statusHtml = `<span class="alert-title text-green">${T.status_regular}</span><span class="status-subtitle">${T.status_work_day}</span>`;
             }
 
             resultDiv.innerHTML = `
-                <p>Pagan Date: ${dateObj.toDateString()}</p>
+                <p>${T.pagan_date}: ${dateObj.toDateString()}</p>
                 <hr style="border-color: #333;">
-                <p>Scriptural Year: <span class="highlight">${result.year}</span></p>
-                <p>Scriptural Month: <span class="highlight">${result.month}</span></p>
-                <p>Scriptural Day: <span class="highlight">${result.day}</span></p>
+                <p>${T.scr_year}: <span class="highlight">${result.year}</span></p>
+                <p>${T.scr_month}: <span class="highlight">${result.month}</span></p>
+                <p>${T.scr_day}: <span class="highlight">${result.day}</span></p>
                 <hr style="border-color: #333;">
                 <div>${statusHtml}</div>
             `;
         }
 
-        // --- AGE CALCULATOR (FIXED) ---
+        // --- AGE CALCULATOR ---
         function calculateAge() {
             const input = document.getElementById('birth-date');
             const resultDiv = document.getElementById('age-result-display');
+            const T = translations[currentLang];
+            
             if (!input.value) {
-                resultDiv.innerHTML = "<p style='color:red'>Please select a birth date.</p>";
+                resultDiv.innerHTML = `<p style='color:red'>${T.lbl_birth_date}</p>`;
                 return;
             }
 
@@ -462,23 +646,20 @@
             const birthDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             let today = new Date();
             
-            // Strict Noon Anchoring to prevent Timezone/DST errors
             birthDate.setHours(12,0,0,0);
             today.setHours(12,0,0,0);
 
             if (birthDate > today) {
-                resultDiv.innerHTML = "<p style='color:red'>Birth date cannot be in the future.</p>";
+                resultDiv.innerHTML = "<p style='color:red'>Birth date cannot be in the future.</p>"; // Logic error if trans not loaded
                 return;
             }
 
-            // 1. Get Scriptural Info for Birth Day
             const birthSD = getScripturalDate(birthDate);
             let birthStatus = "";
-            if (birthSD.isNewMoon) birthStatus = "<span class='text-red'>New Moon Day</span>";
-            else if (birthSD.isShabbat) birthStatus = "<span class='text-red'>Shabbat</span>";
-            else birthStatus = "<span class='text-green'>Work Day</span>";
+            if (birthSD.isNewMoon) birthStatus = `<span class='text-red'>${T.status_new_moon}</span>`;
+            else if (birthSD.isShabbat) birthStatus = `<span class='text-red'>${T.status_shabbat}</span>`;
+            else birthStatus = `<span class='text-green'>${T.status_work_day}</span>`;
 
-            // 2. Calculate Duration
             let years = 0;
             let months = 0;
             let days = 0;
@@ -490,86 +671,69 @@
             while(true) {
                 let nextBirthdaySD = { year: currentSD.year + 1, month: birthSD.month, day: birthSD.day };
                 let nextBirthday = getGregorianFromScriptural(nextBirthdaySD.year, nextBirthdaySD.month, nextBirthdaySD.day);
-                
-                // Check strictly at noon
                 if (nextBirthday <= today) {
                     years++;
                     currentSD = nextBirthdaySD;
                     currentGregorian = nextBirthday;
-                } else {
-                    break;
-                }
+                } else { break; }
             }
 
             // Count Months
-            // We count up to 13 months to cover leap years
             let monthSafety = 0;
             while(monthSafety < 14) {
                 monthSafety++;
-                
                 let nextMonthSD = { ...currentSD };
                 nextMonthSD.month++;
-                
                 let maxMonth = isLeapYear(nextMonthSD.year) ? 13 : 12;
                 if (nextMonthSD.month > maxMonth) {
                     nextMonthSD.month = 1;
                     nextMonthSD.year++;
                 }
-                
                 let nextMonthDate = getGregorianFromScriptural(nextMonthSD.year, nextMonthSD.month, nextMonthSD.day);
-                
                 if (nextMonthDate <= today) {
                     months++;
                     currentSD = nextMonthSD;
                     currentGregorian = nextMonthDate;
-                } else {
-                    break;
-                }
+                } else { break; }
             }
 
             // Count Days
-            // Difference in milliseconds, converted to days
             let diffTime = Math.abs(today - currentGregorian);
             days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            // 3. Next Cycle Completion
-            // Logic: Take the current position (Year/Month/Day), add 1 year, find date.
-            // But simpler: Find next Anniversary relative to Birth.
+            // Next Cycle
             let nextBirthdaySD = { year: birthSD.year + years + 1, month: birthSD.month, day: birthSD.day };
             let nextBirthdayGreg = getGregorianFromScriptural(nextBirthdaySD.year, nextBirthdaySD.month, nextBirthdaySD.day);
 
             resultDiv.innerHTML = `
                 <div style="margin-bottom: 1rem;">
-                    <p style="font-size: 0.9rem; color: #aaa;">You were born on:</p>
+                    <p style="font-size: 0.9rem; color: #aaa;">${T.age_born_on}</p>
                     <p style="font-size: 1.1rem;">
-                        Year <span class="highlight">${birthSD.year}</span>, 
-                        Month <span class="highlight">${birthSD.month}</span>, 
-                        Day <span class="highlight">${birthSD.day}</span>
+                        ${T.scr_year} <span class="highlight">${birthSD.year}</span>, 
+                        ${T.scr_month} <span class="highlight">${birthSD.month}</span>, 
+                        ${T.scr_day} <span class="highlight">${birthSD.day}</span>
                     </p>
                     <p>Status: ${birthStatus}</p>
                 </div>
                 <hr style="border-color: #333;">
-                <p style="font-size: 1.1rem; margin-top: 1rem;">Your Scriptural Age:</p>
+                <p style="font-size: 1.1rem; margin-top: 1rem;">${T.age_your_age}</p>
                 <div class="age-result-row">
-                    <span class="age-label">Years:</span>
+                    <span class="age-label">${T.years}:</span>
                     <span class="age-value">${years}</span>
                 </div>
                 <div class="age-result-row">
-                    <span class="age-label">Months:</span>
+                    <span class="age-label">${T.months}:</span>
                     <span class="age-value">${months}</span>
                 </div>
                 <div class="age-result-row">
-                    <span class="age-label">Days:</span>
+                    <span class="age-label">${T.days}:</span>
                     <span class="age-value">${days}</span>
                 </div>
                 <hr style="border-color: #333; margin-top: 1rem;">
                 <div style="margin-top: 1rem;">
-                    <p style="font-size: 0.9rem; color: #aaa;">Next Cycle Completion (Age ${years + 1}):</p>
+                    <p style="font-size: 0.9rem; color: #aaa;">${T.next_cycle} (${years + 1}):</p>
                     <p class="text-blue" style="font-size: 1.1rem; font-weight: bold;">
                         ${formatDate(nextBirthdayGreg)}
-                    </p>
-                    <p style="font-size: 0.8rem; color: #888;">
-                        (Scriptural: Year ${nextBirthdaySD.year}, Month ${nextBirthdaySD.month}, Day ${nextBirthdaySD.day})
                     </p>
                 </div>
             `;
@@ -582,9 +746,10 @@
             const headerDiv = document.getElementById('feast-year-header');
             const today = new Date();
             today.setHours(12,0,0,0);
+            const T = translations[currentLang];
 
             const gregorianRange = getGregorianRange(targetYear);
-            headerDiv.innerHTML = `Scriptural Year: <span class="highlight">${targetYear}</span><br>
+            headerDiv.innerHTML = `${T.scr_year}: <span class="highlight">${targetYear}</span><br>
             <span style="font-size:0.8rem; color:#888;">${gregorianRange}</span>`;
 
             const getFeastDate = (scriptYear, feastOffset) => {
@@ -593,14 +758,14 @@
             };
 
             const feasts = [
-                { name: "Rosh Chodashim (New Year)", offset: 0, isRange: false, ref: "Exodus 12:2", mandatory: false },
-                { name: "Pesach (Passover)", offset: 13, isRange: false, ref: "Leviticus 23:5", mandatory: true },
-                { name: "Chag HaMatzot (Unleavened Bread)", offset: 14, isRange: true, endOffset: 20, ref: "Leviticus 23:6-8", mandatory: true },
-                { name: "Yom HaBikkurim (First Fruits)", offset: 16, isRange: false, ref: "Leviticus 23:9-14", mandatory: true },
-                { name: "Shavuot (Feast of Weeks)", offset: 16 + 50, isRange: false, ref: "Leviticus 23:15-21", mandatory: true },
-                { name: "Yom Teruah (Trumpets)", offset: 177, isRange: false, ref: "Leviticus 23:24-25", mandatory: true },
-                { name: "Yom Kippur (Atonement)", offset: 177 + 9, isRange: false, ref: "Leviticus 23:27-32", mandatory: true },
-                { name: "Sukkot (Booths)", offset: 177 + 14, isRange: true, endOffset: 177 + 21, ref: "Leviticus 23:34-36", mandatory: true }
+                { key: "new_year", offset: 0, isRange: false, ref: "Exodus 12:2", mandatory: false },
+                { key: "pesach", offset: 13, isRange: false, ref: "Leviticus 23:5", mandatory: true },
+                { key: "ub", offset: 14, isRange: true, endOffset: 20, ref: "Leviticus 23:6-8", mandatory: true },
+                { key: "bikkurim", offset: 16, isRange: false, ref: "Leviticus 23:9-14", mandatory: true },
+                { key: "shavuot", offset: 16 + 50, isRange: false, ref: "Leviticus 23:15-21", mandatory: true },
+                { key: "teruah", offset: 177, isRange: false, ref: "Leviticus 23:24-25", mandatory: true },
+                { key: "kippur", offset: 177 + 9, isRange: false, ref: "Leviticus 23:27-32", mandatory: true },
+                { key: "sukkot", offset: 177 + 14, isRange: true, endOffset: 177 + 21, ref: "Leviticus 23:34-36", mandatory: true }
             ];
 
             let html = "";
@@ -630,23 +795,23 @@
                 }
 
                 const statusText = feast.mandatory 
-                    ? '<span class="mandatory-status">Mandatory Observance</span>' 
-                    : '<span class="memorial-status">Memorial / Time Marker</span>';
+                    ? `<span class="mandatory-status">${T.status_mandatory}</span>` 
+                    : `<span class="memorial-status">${T.status_memorial}</span>`;
 
                 html += `
                 <tr>
-                    <td class="feast-row-header" colspan="2">${feast.name}</td>
+                    <td class="feast-row-header" colspan="2">${T.feasts[feast.key]}</td>
                 </tr>
                 <tr class="feast-row-info">
                     <td colspan="2">${feast.ref} | ${statusText}</td>
                 </tr>
                 <tr>
                     <td class="col-past">
-                        <span class="label-past">Previous:</span>
+                        <span class="label-past">${T.previous}</span>
                         <span class="date-text">${pastStr}</span>
                     </td>
                     <td class="col-future">
-                        <span class="label-future">Next:</span>
+                        <span class="label-future">${T.next}</span>
                         <span class="date-text">${futureStr}</span>
                     </td>
                 </tr>
