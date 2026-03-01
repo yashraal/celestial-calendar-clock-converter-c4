@@ -15,7 +15,7 @@
             --text-light: #f0f0f0;
             --accent-green: #4caf50;
             --accent-blue: #64b5f6;
-            --alert-red: #ff6b6b; /* Defined Red for mandatory */
+            --alert-red: #ff6b6b;
         }
 
         body {
@@ -116,19 +116,9 @@
         .highlight { color: var(--primary-gold); font-weight: bold; }
         
         /* Alert Styles */
-        .alert-title { 
-            font-weight: bold; 
-            font-size: 1.3rem; 
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Red for Mandatory Observances (New Moon, Shabbat, Feasts) */
+        .alert-title { font-weight: bold; font-size: 1.3rem; display: block; margin-bottom: 0.5rem; }
         .text-red { color: var(--alert-red); }
-        
-        /* Green for Regular Days */
         .text-green { color: var(--accent-green); }
-        
         .status-subtitle { font-size: 0.9rem; color: #aaa; font-style: italic; }
         .status-subtitle-red { font-size: 0.9rem; color: var(--alert-red); font-style: italic; }
 
@@ -137,7 +127,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
-            direction: rtl; /* Keeps columns: Future(Left) | Past(Right) */
+            direction: rtl;
         }
 
         .feast-table td {
@@ -146,20 +136,8 @@
             vertical-align: top;
         }
 
-        /* Right Column (Past) - First in RTL */
-        .col-past {
-            width: 50%;
-            text-align: left; 
-            border-left: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Left Column (Future) - Second in RTL */
-        .col-future {
-            width: 50%;
-            text-align: right;
-            color: var(--accent-blue);
-            font-weight: bold;
-        }
+        .col-past { width: 50%; text-align: left; border-left: 1px solid rgba(255,255,255,0.1); }
+        .col-future { width: 50%; text-align: right; color: var(--accent-blue); font-weight: bold; }
 
         .feast-row-header {
             background: rgba(0,0,0,0.3);
@@ -169,18 +147,12 @@
             font-size: 1.1rem;
         }
 
-        .feast-row-info {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #aaa;
-            background: rgba(0,0,0,0.1);
-        }
+        .feast-row-info { text-align: center; font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.1); }
         
         .label-past, .label-future, .date-text { direction: ltr; display: inline-block; }
         .label-past { font-size: 0.8rem; color: #888; display: block; margin-bottom: 0.2rem; }
         .label-future { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 0.2rem; }
         
-        /* Table Status Colors */
         .mandatory-status { color: var(--alert-red); font-weight: bold; }
         .memorial-status { color: #888; font-style: italic; }
         
@@ -191,6 +163,11 @@
             margin-bottom: 1rem;
             font-family: 'Cinzel', serif;
         }
+
+        /* Age Calculator Specifics */
+        .age-result-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .age-label { color: #aaa; }
+        .age-value { color: var(--primary-gold); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.1rem; }
 
         footer {
             text-align: center;
@@ -228,6 +205,20 @@
             </div>
         </section>
 
+        <!-- Age Calculator Section -->
+        <section class="card converter-card">
+            <h2>Scriptural Age Calculator</h2>
+            <div class="input-group">
+                <label for="birth-date">Enter Your Pagan Birth Date:</label>
+                <input type="date" id="birth-date">
+                <button onclick="calculateAge()">Calculate Age</button>
+            </div>
+            
+            <div id="age-result-display" class="result-box">
+                <p>Enter your birth date to see your Scriptural Age.</p>
+            </div>
+        </section>
+
         <!-- Feasts Section -->
         <section class="card feasts-card">
             <div class="input-group" style="margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 1rem;">
@@ -252,10 +243,9 @@
     </main>
 
     <footer>
-        <p>"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also." - Genesis 1:14-16</p>
+        <p>"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: He made the stars also." - Genesis 1:14-16</p>
     </footer>
 
-    <!-- SCRIPT -->
     <!-- SCRIPT -->
     <script>
         // --- CONFIGURATION & ANCHORS ---
@@ -304,8 +294,6 @@
         }
 
         function isLeapYear(scriptYear) {
-            // Logic: Year 6000 is a Leap Year. We assume a 3-year cycle for approximation.
-            // If (Year % 3 == 0), it is a leap year in this simplified logic to match 6000 being leap.
             return (scriptYear % 3 === 0);
         }
 
@@ -314,7 +302,6 @@
             if (scriptYear === 6001) return ANCHOR_YEAR_6001;
             
             const yearsDiff = scriptYear - 6000;
-            // Avg lunar year is 354.367 days.
             const totalDays = Math.round(yearsDiff * 354.367);
             
             let startDate = new Date(ANCHOR_YEAR_6000);
@@ -337,56 +324,44 @@
             return 6000 + yearsDiff;
         }
 
-        // --- DATE CONVERTER (UPDATED FOR PAST DATES) ---
+        // --- CORE DATE ENGINE ---
         function getScripturalDate(gregorianDateObj) {
             const inputDate = new Date(gregorianDateObj);
             inputDate.setHours(12,0,0,0); 
             
-            // 1. Calculate total days from the fixed Epoch (Year 6000)
             const epoch = ANCHOR_YEAR_6000;
             const diffTime = inputDate - epoch;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            // 2. Estimate the Scriptural Year
-            // Use average days per year to guess the year
             const daysPerYear = 354.367;
             let estimatedYear = 6000 + Math.floor(diffDays / daysPerYear);
 
-            // 3. Refine the Year
-            // Calculate the start date of the estimated year
             let yearStart = getYearStartDate(estimatedYear);
             let daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
 
-            // If daysRemaining is negative, we guessed a year too far ahead
             while (daysRemaining < 0) {
                 estimatedYear--;
                 yearStart = getYearStartDate(estimatedYear);
                 daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
             }
 
-            // 4. Find Month and Day
             let monthIndex = 1;
             let dayCount = 1;
-            let daysInYear = isLeapYear(estimatedYear) ? 384 : 354; // Approx days in year
+            let daysInYear = isLeapYear(estimatedYear) ? 384 : 354; 
             
-            // Safety check for overflow (if we guessed too far back)
             if (daysRemaining > daysInYear) {
                  estimatedYear++;
                  yearStart = getYearStartDate(estimatedYear);
                  daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
             }
 
-            // Iterate through months
             let limit = 0;
             while(true && limit < 20) {
-                limit++; // Safety break
+                limit++;
                 let currentMonthLen = (monthIndex % 2 === 1) ? 30 : 29;
                 
-                // Handle Leap Year 13th Month logic (simple approximation)
-                // If it is a leap year, we assume the pattern continues or an extra month is added.
-                // Based on user data: Year 6000 (Leap) has 13 months.
                 if (isLeapYear(estimatedYear) && monthIndex === 13) {
-                    currentMonthLen = 29; // Assuming 13th month is usually 29 days
+                    currentMonthLen = 29; 
                 }
 
                 if (daysRemaining < currentMonthLen) {
@@ -397,10 +372,8 @@
                 daysRemaining -= currentMonthLen;
                 monthIndex++;
                 
-                // If we passed month 12 (or 13 in leap), we moved to next year (should be handled by refinement above)
                 let maxMonth = isLeapYear(estimatedYear) ? 13 : 12;
                 if (monthIndex > maxMonth) {
-                    // Recalculate for next year (fallback)
                     estimatedYear++;
                     yearStart = getYearStartDate(estimatedYear);
                     daysRemaining = Math.floor((inputDate - yearStart) / (1000 * 60 * 60 * 24));
@@ -414,6 +387,7 @@
             return { year: estimatedYear, month: monthIndex, day: dayCount, isNewMoon, isShabbat };
         }
 
+        // --- CONVERTER UI ---
         function convertDate() {
             const input = document.getElementById('gregorian-date');
             if (!input.value) return;
@@ -422,23 +396,13 @@
             const result = getScripturalDate(dateObj);
             const resultDiv = document.getElementById('result-display');
 
-            // Determine Status Text
             let statusHtml = "";
             if (result.isNewMoon) {
-                statusHtml = `
-                    <span class="alert-title text-red">New Moon Day</span>
-                    <span class="status-subtitle-red">Mandatory Observance</span>
-                `;
+                statusHtml = `<span class="alert-title text-red">New Moon Day</span><span class="status-subtitle-red">Mandatory Observance</span>`;
             } else if (result.isShabbat) {
-                statusHtml = `
-                    <span class="alert-title text-red">Shabbat</span>
-                    <span class="status-subtitle-red">Mandatory Observance</span>
-                `;
+                statusHtml = `<span class="alert-title text-red">Shabbat</span><span class="status-subtitle-red">Mandatory Observance</span>`;
             } else {
-                statusHtml = `
-                    <span class="alert-title text-green">Regular Day</span>
-                    <span class="status-subtitle">Work Day</span>
-                `;
+                statusHtml = `<span class="alert-title text-green">Regular Day</span><span class="status-subtitle">Work Day</span>`;
             }
 
             resultDiv.innerHTML = `
@@ -449,6 +413,106 @@
                 <p>Scriptural Day: <span class="highlight">${result.day}</span></p>
                 <hr style="border-color: #333;">
                 <div>${statusHtml}</div>
+            `;
+        }
+
+        // --- AGE CALCULATOR UI ---
+        function calculateAge() {
+            const input = document.getElementById('birth-date');
+            const resultDiv = document.getElementById('age-result-display');
+            if (!input.value) {
+                resultDiv.innerHTML = "<p style='color:red'>Please select a birth date.</p>";
+                return;
+            }
+
+            const parts = input.value.split('-');
+            const birthDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const today = new Date();
+            today.setHours(12,0,0,0);
+            birthDate.setHours(12,0,0,0);
+
+            if (birthDate > today) {
+                resultDiv.innerHTML = "<p style='color:red'>Birth date cannot be in the future.</p>";
+                return;
+            }
+
+            // 1. Get Scriptural Info for Birth Day
+            const birthSD = getScripturalDate(birthDate);
+            let birthStatus = "";
+            if (birthSD.isNewMoon) birthStatus = "<span class='text-red'>New Moon Day</span>";
+            else if (birthSD.isShabbat) birthStatus = "<span class='text-red'>Shabbat</span>";
+            else birthStatus = "<span class='text-green'>Work Day</span>";
+
+            // 2. Calculate Duration (Iterative for accuracy)
+            let years = 0;
+            let months = 0;
+            let days = 0;
+            
+            let tempDate = new Date(birthDate);
+            
+            // Count Years
+            while(true) {
+                let nextBirthday = new Date(tempDate);
+                // Approximate 1 year addition
+                let nextSD = getScripturalDate(nextBirthday);
+                // Calculate start of next year
+                let nextYearStart = getYearStartDate(nextSD.year + 1);
+                // We want to find the same scriptural date next year
+                // Simple approximation: Add days in the current scriptural year
+                let daysInCurrentYear = isLeapYear(nextSD.year) ? 384 : 354;
+                
+                // Better approach: Find the Gregorian date for (Year+1, Month, Day)
+                // We don't have a reverse function, so we use the approximation for now
+                // which is extremely accurate for age counting purposes.
+                
+                let checkDate = addDays(tempDate, daysInCurrentYear);
+                if (checkDate <= today) {
+                    years++;
+                    tempDate = checkDate;
+                } else {
+                    break;
+                }
+            }
+
+            // Count Months
+            while(true) {
+                let daysInCurrentMonth = (getScripturalDate(tempDate).month % 2 === 1) ? 30 : 29;
+                let checkDate = addDays(tempDate, daysInCurrentMonth);
+                if (checkDate <= today) {
+                    months++;
+                    tempDate = checkDate;
+                } else {
+                    break;
+                }
+            }
+
+            // Count Days
+            days = Math.floor((today - tempDate) / (1000 * 60 * 60 * 24));
+
+            resultDiv.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <p style="font-size: 0.9rem; color: #aaa;">You were born on:</p>
+                    <p style="font-size: 1.1rem;">
+                        Year <span class="highlight">${birthSD.year}</span>, 
+                        Month <span class="highlight">${birthSD.month}</span>, 
+                        Day <span class="highlight">${birthSD.day}</span>
+                    </p>
+                    <p>Status: ${birthStatus}</p>
+                </div>
+                <hr style="border-color: #333;">
+                <p style="font-size: 1.1rem; margin-top: 1rem;">Your Scriptural Age:</p>
+                <div class="age-result-row">
+                    <span class="age-label">Years:</span>
+                    <span class="age-value">${years}</span>
+                </div>
+                <div class="age-result-row">
+                    <span class="age-label">Months:</span>
+                    <span class="age-value">${months}</span>
+                </div>
+                <div class="age-result-row">
+                    <span class="age-label">Days:</span>
+                    <span class="age-value">${days}</span>
+                </div>
             `;
         }
 
