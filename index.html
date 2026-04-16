@@ -542,7 +542,7 @@
         }
 
         function getMonthLength(monthIndex, year) {
-            if (monthIndex === 13) return 29; 
+            if (monthIndex === 13) return 30; 
             return (monthIndex % 2 === 1) ? 30 : 29;
         }
 
@@ -727,11 +727,60 @@
             const resultDiv = document.getElementById('result-display');
             const T = translations[currentLang] || translations['en'];
 
-            let statusHtml = "";
+            let statusItems = [];
+
+            // New Moon Day
             if (result.isNewMoon) {
-                statusHtml = `<span class="alert-title text-red">${T.status_new_moon}</span><span class="status-subtitle-red">${T.status_mandatory}</span>`;
-            } else if (result.isShabbat) {
-                statusHtml = `<span class="alert-title text-red">${T.status_shabbat}</span><span class="status-subtitle-red">${T.status_mandatory}</span>`;
+                statusItems.push(T.status_new_moon);
+            }
+
+            // Weekly Shabbat
+            if (result.isShabbat) {
+                statusItems.push(T.status_shabbat);
+            }
+
+            // Feast Days - Month 1
+            if (result.month === 1) {
+                if (result.day === 14) {
+                    statusItems.push(T.feasts.pesach.name);
+                }
+                if (result.day >= 15 && result.day <= 21) {
+                    statusItems.push(T.feasts.ub.name);
+                }
+                if (result.day === 16) {
+                    statusItems.push(T.feasts.bikkurim.name);
+                }
+            }
+
+            // Feast Days - Month 7
+            if (result.month === 7) {
+                if (result.day === 1) {
+                    statusItems.push(T.feasts.teruah.name);
+                }
+                if (result.day === 10) {
+                    statusItems.push(T.feasts.kippur.name);
+                }
+                if (result.day >= 15 && result.day <= 22) {
+                    statusItems.push(T.feasts.sukkot.name);
+                }
+            }
+
+            // Shavuot - 50 days from Bikkurim (Month 1, Day 16)
+            try {
+                let bikkurimGreg = getGregorianFromScriptural(result.year, 1, 16);
+                let shavuotGreg = new Date(bikkurimGreg);
+                shavuotGreg.setDate(shavuotGreg.getDate() + 49);
+                let shavuotSD = getScripturalDate(shavuotGreg);
+                if (result.month === shavuotSD.month && result.day === shavuotSD.day) {
+                    statusItems.push(T.feasts.shavuot.name);
+                }
+            } catch(e) { /* ignore shavuot calc errors */ }
+
+            let statusHtml = "";
+            if (statusItems.length > 0) {
+                statusHtml = statusItems.map(item =>
+                    `<span class="alert-title text-red">${item}</span>`
+                ).join('') + `<span class="status-subtitle-red">${T.status_mandatory}</span>`;
             } else {
                 statusHtml = `<span class="alert-title text-green">${T.status_regular}</span><span class="status-subtitle">${T.status_work_day}</span>`;
             }
@@ -939,5 +988,13 @@
             tableBody.innerHTML = html;
         }
     </script>
+
+<!-- SunCalc da CDN (deixa como está) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+
+<!-- Seus arquivos locais (importante!) -->
+<script src="mooncalc.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
