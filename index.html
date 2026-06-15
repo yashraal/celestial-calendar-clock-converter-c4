@@ -225,6 +225,65 @@
         .age-label { color: #aaa; }
         .age-value { color: var(--primary-gold); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.1rem; }
 
+        /* Land Cycle Status Styles */
+        .land-cycle-section {
+            background: rgba(26, 42, 58, 0.6);
+            border: 2px solid var(--primary-gold);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .land-cycle-title {
+            font-family: 'Cinzel', serif;
+            color: var(--primary-gold);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .chronology-selector-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .chronology-selector-row label { color: #ddd; font-weight: bold; }
+        .chronology-selector-row select {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .land-cycle-display {
+            background: #000;
+            border-left: 4px solid var(--primary-gold);
+            padding: 1.5rem;
+            border-radius: 4px;
+        }
+        .cycle-info-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: #fff;
+        }
+        .cycle-info-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        .cycle-label { color: #aaa; font-size: 0.9rem; display: block; margin-bottom: 0.3rem; }
+        .cycle-value { color: var(--primary-gold); font-size: 1.2rem; font-weight: bold; font-family: 'Cinzel', serif; }
+        .cycle-status-title { color: var(--alert-red); font-size: 1.3rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .cycle-status-desc { color: #aaa; font-size: 0.9rem; font-style: italic; }
+        .cycle-info-chrono { color: #888; font-size: 0.85rem; margin-top: 0.5rem; }
+
         footer {
             text-align: center;
             padding: 2rem;
@@ -323,6 +382,43 @@
             </table>
         </section>
 
+        <!-- Land Cycle Status Section -->
+        <section class="card land-cycle-section">
+            <div class="land-cycle-title" id="land-cycle-title">Land Cycle Status</div>
+            
+            <div class="chronology-selector-row">
+                <label for="chronology-select" id="lbl-chrono-method">Chronology Method:</label>
+                <select id="chronology-select" onchange="updateLandCycleDisplay()">
+                    <option value="bible1814">Bible of 1814 (Ethiopian Source - 6000)</option>
+                    <option value="masoretic">Masoretic (Traditional Jewish - 5786)</option>
+                    <option value="septuagint">Septuagint / Ethiopian Bible (6386)</option>
+                </select>
+            </div>
+
+            <div class="land-cycle-display" id="land-cycle-display">
+                <div class="cycle-info-row">
+                    <div class="cycle-info-item">
+                        <span class="cycle-label" id="lbl-hebrew-year">Hebrew Year:</span>
+                        <span class="cycle-value" id="hebrew-year-value">6000</span>
+                    </div>
+                    <div class="cycle-info-item">
+                        <span class="cycle-label" id="lbl-shemitah-cycle">Shemitah Cycle:</span>
+                        <span class="cycle-value" id="shemitah-value">Year 1 of 7</span>
+                    </div>
+                    <div class="cycle-info-item">
+                        <span class="cycle-label" id="lbl-jubilee-cycle">Jubilee Cycle:</span>
+                        <span class="cycle-value" id="jubilee-value">Year 50 of 50</span>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 1rem 0; margin: 1rem 0;">
+                    <div class="cycle-status-title" id="land-status-title">Terra Deve Descansar</div>
+                    <div class="cycle-status-desc" id="land-status-desc">Year of Jubilee (50º Year)</div>
+                    <div class="cycle-info-chrono" id="land-status-chrono">Chronology: Bible of 1814 (Ethiopian Source)</div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer>
@@ -376,6 +472,16 @@
                 next_cycle: "Next Cycle Completion",
                 previous: "Previous:",
                 next: "Next:",
+                land_cycle_title: "Land Cycle Status",
+                lbl_chrono_method: "Chronology Method:",
+                lbl_hebrew_year: "Hebrew Year:",
+                lbl_shemitah_cycle: "Shemitah Cycle:",
+                lbl_jubilee_cycle: "Jubilee Cycle:",
+                chrono_bible1814: "Bible of 1814 (Ethiopian Source - 6000)",
+                chrono_masoretic: "Masoretic (Traditional Jewish - 5786)",
+                chrono_septuagint: "Septuagint / Ethiopian Bible (6386)",
+                land_cycle_rest: "Terra Deve Descansar",
+                land_cycle_can_plant: "Can Plant",
                 footer: '"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also." - Genesis 1:14-16',
                 feasts: {
                     new_year: { name: "Rosh Chodashim (New Year)", def: "1st Day of 1st Month" },
@@ -419,6 +525,16 @@
                 next_cycle: "Próximo Ciclo Completo",
                 previous: "Anterior:",
                 next: "Próximo:",
+                land_cycle_title: "Status do Ciclo da Terra",
+                lbl_chrono_method: "Método de Cronologia:",
+                lbl_hebrew_year: "Ano Hebraico:",
+                lbl_shemitah_cycle: "Ciclo de Shemitah:",
+                lbl_jubilee_cycle: "Ciclo de Jubileu:",
+                chrono_bible1814: "Bíblia de 1814 (Fonte Etíope - 6000)",
+                chrono_masoretic: "Masoreta (Tradicional Judaico - 5786)",
+                chrono_septuagint: "Septuaginta / Bíblia Etíope (6386)",
+                land_cycle_rest: "Terra Deve Descansar",
+                land_cycle_can_plant: "Pode Plantar",
                 footer: '"E disse Elohim: Haja luminares na expansão dos céus, para haver separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos. E sejam para luminares na expansão dos céus, para iluminar a terra; e assim foi. E fez Elohim os dois grandes luminares: o luminar maior para governar o dia, e o luminar menor para governar a noite; e fez as estrelas." - Gênesis 1:14-16',
                 feasts: {
                     new_year: { name: "Rosh Chodashim (Ano Novo)", def: "1º Dia do 1º Mês" },
@@ -744,7 +860,7 @@
                 if (result.day === 14) {
                     statusItems.push(T.feasts.pesach.name);
                 }
-                if (result.day >= 15 && result.day <= 21) {
+                if (result.day === 16 || result.day === 21) {
                     statusItems.push(T.feasts.ub.name);
                 }
                 if (result.day === 16) {
