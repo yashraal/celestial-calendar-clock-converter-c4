@@ -168,8 +168,11 @@
         .text-red { color: var(--alert-red); }
         .text-green { color: var(--accent-green); }
         .text-blue { color: var(--accent-blue); }
+        .text-gold { color: var(--primary-gold); }
         .status-subtitle { font-size: 0.9rem; color: #aaa; font-style: italic; }
         .status-subtitle-red { font-size: 0.9rem; color: var(--alert-red); font-style: italic; }
+        .status-subtitle-gold { font-size: 0.9rem; color: var(--primary-gold); font-style: italic; }
+        .convocation-note { text-align: center; font-size: 0.75rem; color: var(--primary-gold); font-style: italic; padding: 0.3rem 0.8rem; background: rgba(255,255,255,0.03); }
 
         /* --- TABLE STYLES --- */
         .feast-table {
@@ -281,6 +284,7 @@
         .cycle-label { color: #aaa; font-size: 0.9rem; display: block; margin-bottom: 0.3rem; }
         .cycle-value { color: var(--primary-gold); font-size: 1.2rem; font-weight: bold; font-family: 'Cinzel', serif; }
         .cycle-status-title { color: var(--alert-red); font-size: 1.3rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .cycle-status-title.can-plant { color: var(--accent-green); }
         .cycle-status-desc { color: #aaa; font-size: 0.9rem; font-style: italic; }
         .cycle-info-chrono { color: #888; font-size: 0.85rem; margin-top: 0.5rem; }
 
@@ -437,6 +441,7 @@
         }
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
 
     <!-- APP SCRIPT -->
     <script>
@@ -463,6 +468,9 @@
                 status_shabbat: "Shabbat",
                 status_regular: "Regular Day",
                 status_mandatory: "Mandatory Observance",
+                status_intermediate: "Festival Week (Work Permitted)",
+                chol_hamoed_suffix: " (Intermediate Day)",
+                holy_convocation_note: "Set-Apart Calling (no work) only on day {first} and day {last}; the days in between are intermediate festival days (Chol HaMoed) when work is permitted.",
                 status_work_day: "Work Day",
                 age_born_on: "You were born on:",
                 age_your_age: "Your Scriptural Age:",
@@ -480,8 +488,13 @@
                 chrono_bible1814: "Bible of 1814 (Ethiopian Source - 6000)",
                 chrono_masoretic: "Masoretic (Traditional Jewish - 5786)",
                 chrono_septuagint: "Septuagint / Ethiopian Bible (6386)",
-                land_cycle_rest: "Terra Deve Descansar",
+                land_cycle_rest: "The Land Must Rest",
                 land_cycle_can_plant: "Can Plant",
+                land_status_chrono_prefix: "Chronology:",
+                cycle_year_of: "Year {n} of {total}",
+                land_status_jubilee_desc: "Year of Jubilee (Year {n} of 50)",
+                land_status_shemitah_desc: "Sabbatical Year (Year {n} of 7)",
+                land_status_regular_desc: "Regular Year (Year {n} of 7 in Cycle)",
                 footer: '"And Elohim said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years: And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so. And Elohim made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also." - Genesis 1:14-16',
                 feasts: {
                     new_year: { name: "Rosh Chodashim (New Year)", def: "1st Day of 1st Month" },
@@ -516,6 +529,9 @@
                 status_shabbat: "Shabbat",
                 status_regular: "Dia Regular",
                 status_mandatory: "Observância Obrigatória",
+                status_intermediate: "Semana Festiva (Trabalho Permitido)",
+                chol_hamoed_suffix: " (Dia Intermediário)",
+                holy_convocation_note: "Convocação Separada (sem trabalho) apenas no dia {first} e no dia {last}; os dias intermediários são dias festivos comuns (Chol HaMoed), com trabalho permitido.",
                 status_work_day: "Dia de Trabalho",
                 age_born_on: "Você nasceu em:",
                 age_your_age: "Sua Idade Escritural:",
@@ -535,6 +551,11 @@
                 chrono_septuagint: "Septuaginta / Bíblia Etíope (6386)",
                 land_cycle_rest: "Terra Deve Descansar",
                 land_cycle_can_plant: "Pode Plantar",
+                land_status_chrono_prefix: "Cronologia:",
+                cycle_year_of: "Ano {n} de {total}",
+                land_status_jubilee_desc: "Ano de Jubileu (Ano {n} de 50)",
+                land_status_shemitah_desc: "Ano Sabático (Ano {n} de 7)",
+                land_status_regular_desc: "Ano Regular (Ano {n} de 7 no Ciclo)",
                 footer: '"E disse Elohim: Haja luminares na expansão dos céus, para haver separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos. E sejam para luminares na expansão dos céus, para iluminar a terra; e assim foi. E fez Elohim os dois grandes luminares: o luminar maior para governar o dia, e o luminar menor para governar a noite; e fez as estrelas." - Gênesis 1:14-16',
                 feasts: {
                     new_year: { name: "Rosh Chodashim (Ano Novo)", def: "1º Dia do 1º Mês" },
@@ -569,6 +590,9 @@
                 status_shabbat: "Shabbat",
                 status_regular: "Día Regular",
                 status_mandatory: "Observancia Obligatoria",
+                status_intermediate: "Semana de Fiesta (Trabajo Permitido)",
+                chol_hamoed_suffix: " (Día Intermedio)",
+                holy_convocation_note: "Convocación Apartada (sin trabajo) solo en el día {first} y el día {last}; los días intermedios son días festivos comunes (Chol HaMoed), con trabajo permitido.",
                 status_work_day: "Día de Trabajo",
                 age_born_on: "Usted nació en:",
                 age_your_age: "Su Edad Escritural:",
@@ -578,6 +602,21 @@
                 next_cycle: "Próximo Ciclo Completo",
                 previous: "Anterior:",
                 next: "Próximo:",
+                land_cycle_title: "Estado del Ciclo de la Tierra",
+                lbl_chrono_method: "Método de Cronología:",
+                lbl_hebrew_year: "Año Hebreo:",
+                lbl_shemitah_cycle: "Ciclo de Shemitá:",
+                lbl_jubilee_cycle: "Ciclo de Jubileo:",
+                chrono_bible1814: "Biblia de 1814 (Fuente Etíope - 6000)",
+                chrono_masoretic: "Masorética (Tradicional Judía - 5786)",
+                chrono_septuagint: "Septuaginta / Biblia Etíope (6386)",
+                land_cycle_rest: "La Tierra Debe Descansar",
+                land_cycle_can_plant: "Se Puede Sembrar",
+                land_status_chrono_prefix: "Cronología:",
+                cycle_year_of: "Año {n} de {total}",
+                land_status_jubilee_desc: "Año de Jubileo (Año {n} de 50)",
+                land_status_shemitah_desc: "Año Sabático (Año {n} de 7)",
+                land_status_regular_desc: "Año Regular (Año {n} de 7 en el Ciclo)",
                 footer: '"Y dijo Elohim: Sean lumbreras en la expansión de los cielos para separar el día de la noche; y sean por señales, y por estaciones, y por días y años. Y sean por lumbreras en la expansión de los cielos para alumbrar sobre la tierra: y fue así. E hizo Elohim las dos grandes lumbreras; la lumbrera mayor para que señorease en el día, y la lumbrera menor para que señorease en la noche: hizo también las estrellas." - Génesis 1:14-16',
                 feasts: {
                     new_year: { name: "Rosh Chodashim (Año Nuevo)", def: "1er Día del 1er Mes" },
@@ -642,12 +681,38 @@
                 
                 convertDate();
                 calculateFeastsForYear();
+                updateLandCycleDisplay();
             }
         }
 
         // --- CORE LOGIC ---
-        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13, 12, 0, 0); 
-        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2, 12, 0, 0);  
+        const ANCHOR_YEAR_6000 = new Date(2025, 3, 13, 12, 0, 0);
+        const ANCHOR_YEAR_6001 = new Date(2026, 4, 2, 12, 0, 0);
+
+        // The scriptural day begins at dawn (first light), not at Gregorian midnight, so "today"
+        // for calendar purposes must be checked against the real sunrise at the viewer's own
+        // location. Comparing local clock time against a stand-in location's sunrise (e.g. Jerusalem
+        // for a visitor elsewhere) would mix two different time zones and roll the day over at the
+        // wrong moment - so without a real, geolocation-confirmed position we skip the dawn shift
+        // entirely and fall back to plain midnight rollover instead of guessing with a foreign sunrise.
+        let currentLocation = null;
+
+        function getEffectiveToday() {
+            const now = new Date();
+            let sunriseToday = null;
+            try {
+                if (window.SunCalc && currentLocation) {
+                    sunriseToday = SunCalc.getTimes(now, currentLocation.lat, currentLocation.lng).sunrise;
+                }
+            } catch (e) { /* fall back to calendar-day rollover if sun calc fails */ }
+
+            const effective = new Date(now);
+            if (sunriseToday && now < sunriseToday) {
+                effective.setDate(effective.getDate() - 1);
+            }
+            effective.setHours(12, 0, 0, 0);
+            return effective;
+        }
 
         function isLeapYear(scriptYear) {
             if (scriptYear === 6000) return true;
@@ -771,26 +836,49 @@
 
                 changeLanguage(currentLang);
 
-                const today = new Date();
-                const dd = String(today.getDate()).padStart(2, '0');
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const yyyy = today.getFullYear();
-                document.getElementById('gregorian-date').value = `${yyyy}-${mm}-${dd}`;
-                
-                const select = document.getElementById('year-select');
-                const currentActiveYear = findCurrentActiveYear(today);
-                
-                for (let y = 1; y <= 8000; y++) {
-                    const option = document.createElement("option");
-                    option.value = y;
-                    const gregorianRange = getGregorianRange(y);
-                    option.text = `${y} (${gregorianRange})`;
-                    if (y === currentActiveYear) option.selected = true; 
-                    select.appendChild(option);
-                }
+                const finishStartup = function() {
+                    try {
+                        const today = getEffectiveToday();
+                        const dd = String(today.getDate()).padStart(2, '0');
+                        const mm = String(today.getMonth() + 1).padStart(2, '0');
+                        const yyyy = today.getFullYear();
+                        document.getElementById('gregorian-date').value = `${yyyy}-${mm}-${dd}`;
 
-                convertDate();
-                calculateFeastsForYear();
+                        const select = document.getElementById('year-select');
+                        const currentActiveYear = findCurrentActiveYear(today);
+
+                        for (let y = 1; y <= 8000; y++) {
+                            const option = document.createElement("option");
+                            option.value = y;
+                            const gregorianRange = getGregorianRange(y);
+                            option.text = `${y} (${gregorianRange})`;
+                            if (y === currentActiveYear) option.selected = true;
+                            select.appendChild(option);
+                        }
+
+                        convertDate();
+                        calculateFeastsForYear();
+                        updateLandCycleDisplay();
+                    } catch (e) {
+                        console.error(e);
+                        document.getElementById('result-display').innerHTML = "<p style='color:red'>Startup Error: " + e.message + "</p>";
+                    }
+                };
+
+                // Real sunrise requires the viewer's location; ask for it once, then fall back to
+                // the Jerusalem default (already set in currentLocation) if denied/unavailable.
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            currentLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                            finishStartup();
+                        },
+                        function() { finishStartup(); },
+                        { timeout: 5000, maximumAge: 3600000 }
+                    );
+                } else {
+                    finishStartup();
+                }
 
             } catch (e) {
                 console.error(e);
@@ -844,6 +932,7 @@
             const T = translations[currentLang] || translations['en'];
 
             let statusItems = [];
+            let infoItems = [];
 
             // New Moon Day
             if (result.isNewMoon) {
@@ -860,8 +949,11 @@
                 if (result.day === 14) {
                     statusItems.push(T.feasts.pesach.name);
                 }
-                if (result.day === 16 || result.day === 21) {
+                // Chag HaMatzot range remains 15-21, but only 15 and 21 are full holy convocations.
+                if (result.day === 15 || result.day === 21) {
                     statusItems.push(T.feasts.ub.name);
+                } else if (result.day > 15 && result.day < 21) {
+                    infoItems.push(`${T.feasts.ub.name}${T.chol_hamoed_suffix}`);
                 }
                 if (result.day === 16) {
                     statusItems.push(T.feasts.bikkurim.name);
@@ -876,8 +968,11 @@
                 if (result.day === 10) {
                     statusItems.push(T.feasts.kippur.name);
                 }
-                if (result.day >= 15 && result.day <= 22) {
+                // Sukkot spans 15-22, but only 15 and 22 are the holy convocations where work is forbidden.
+                if ((result.day === 15 || result.day === 22)) {
                     statusItems.push(T.feasts.sukkot.name);
+                } else if (result.day > 15 && result.day < 22) {
+                    infoItems.push(`${T.feasts.sukkot.name}${T.chol_hamoed_suffix}`);
                 }
             }
 
@@ -897,6 +992,10 @@
                 statusHtml = statusItems.map(item =>
                     `<span class="alert-title text-red">${item}</span>`
                 ).join('') + `<span class="status-subtitle-red">${T.status_mandatory}</span>`;
+            } else if (infoItems.length > 0) {
+                statusHtml = infoItems.map(item =>
+                    `<span class="alert-title text-gold">${item}</span>`
+                ).join('') + `<span class="status-subtitle-gold">${T.status_intermediate}</span>`;
             } else {
                 statusHtml = `<span class="alert-title text-green">${T.status_regular}</span><span class="status-subtitle">${T.status_work_day}</span>`;
             }
@@ -1037,12 +1136,12 @@
             const feasts = [
                 { key: "new_year", offset: 0, isRange: false, ref: "Exodus 12:2", mandatory: false },
                 { key: "pesach", offset: 13, isRange: false, ref: "Leviticus 23:5", mandatory: true },
-                { key: "ub", offset: 14, isRange: true, endOffset: 20, ref: "Leviticus 23:6-8", mandatory: true },
+                { key: "ub", offset: 14, isRange: true, endOffset: 20, ref: "Leviticus 23:6-8", mandatory: true, convFirst: 15, convLast: 21 },
                 { key: "bikkurim", offset: 16, isRange: false, ref: "Leviticus 23:9-14", mandatory: true },
                 { key: "shavuot", offset: 16 + 50, isRange: false, ref: "Leviticus 23:15-21", mandatory: true },
                 { key: "teruah", offset: 177, isRange: false, ref: "Leviticus 23:24-25", mandatory: true },
                 { key: "kippur", offset: 177 + 9, isRange: false, ref: "Leviticus 23:27-32", mandatory: true },
-                { key: "sukkot", offset: 177 + 14, isRange: true, endOffset: 177 + 21, ref: "Leviticus 23:34-36", mandatory: true }
+                { key: "sukkot", offset: 177 + 14, isRange: true, endOffset: 177 + 21, ref: "Leviticus 23:34-36", mandatory: true, convFirst: 15, convLast: 22 }
             ];
 
             let html = "";
@@ -1078,6 +1177,16 @@
                 const feastName = T.feasts[feast.key] ? T.feasts[feast.key].name : feast.key;
                 const feastDef = T.feasts[feast.key] ? T.feasts[feast.key].def : "";
 
+                let convocationNoteRow = "";
+                if (feast.convFirst) {
+                    const noteTpl = T.holy_convocation_note || translations['en'].holy_convocation_note;
+                    const noteText = noteTpl.replace('{first}', feast.convFirst).replace('{last}', feast.convLast);
+                    convocationNoteRow = `
+                <tr>
+                    <td class="convocation-note" colspan="2">${noteText}</td>
+                </tr>`;
+                }
+
                 html += `
                 <tr>
                     <td class="feast-row-header" colspan="2">${feastName}</td>
@@ -1087,7 +1196,7 @@
                 </tr>
                 <tr>
                     <td class="feast-row-def" colspan="2">${feastDef}</td>
-                </tr>
+                </tr>${convocationNoteRow}
                 <tr>
                     <td class="col-past">
                         <span class="label-past">${T.previous}</span>
@@ -1102,6 +1211,77 @@
             });
 
             tableBody.innerHTML = html;
+        }
+
+        // Chronology labels are alternate year-numbering systems for the same real date;
+        // the offset of each versus this app's internal 6000-anchor is fixed by the dropdown's own labels.
+        const CHRONOLOGY_OFFSETS = {
+            bible1814: 0,
+            masoretic: -214,
+            septuagint: 386
+        };
+
+        function updateLandCycleDisplay() {
+            const T = translations[currentLang] || translations['en'];
+            const E = translations['en'];
+
+            document.getElementById('land-cycle-title').innerText = T.land_cycle_title || E.land_cycle_title;
+            document.getElementById('lbl-chrono-method').innerText = T.lbl_chrono_method || E.lbl_chrono_method;
+            document.getElementById('lbl-hebrew-year').innerText = T.lbl_hebrew_year || E.lbl_hebrew_year;
+            document.getElementById('lbl-shemitah-cycle').innerText = T.lbl_shemitah_cycle || E.lbl_shemitah_cycle;
+            document.getElementById('lbl-jubilee-cycle').innerText = T.lbl_jubilee_cycle || E.lbl_jubilee_cycle;
+
+            const chronoSelect = document.getElementById('chronology-select');
+            const chronoLabels = {
+                bible1814: T.chrono_bible1814 || E.chrono_bible1814,
+                masoretic: T.chrono_masoretic || E.chrono_masoretic,
+                septuagint: T.chrono_septuagint || E.chrono_septuagint
+            };
+            for (const opt of chronoSelect.options) {
+                if (chronoLabels[opt.value]) opt.text = chronoLabels[opt.value];
+            }
+
+            const selectedKey = chronoSelect.value || 'bible1814';
+            const offset = CHRONOLOGY_OFFSETS[selectedKey] || 0;
+
+            // Internal scriptural year for today, independent of the chronology label chosen above.
+            const internalYear = findCurrentActiveYear(getEffectiveToday());
+            document.getElementById('hebrew-year-value').innerText = internalYear + offset;
+
+            // Leviticus 25: 7 weeks of years (7x7=49) are counted, then the year AFTER that count,
+            // the 50th, is proclaimed the Jubilee (Lev 25:8-10) - a standalone sacred year, not the
+            // start of the next count. So the anchor year (6000) is a Jubilee year, the count of a
+            // fresh Shemitah cycle begins the following year (6001 = Year 1 of 7), and the two years
+            // straddling each Jubilee (the 7th Shemitah year and the Jubilee itself) are consecutive
+            // rest years, per Lev 25:20-22.
+            const cycleOffset = internalYear - 6000;
+            const megaCyclePos = ((cycleOffset % 50) + 50) % 50; // 0-49; 0 = Jubilee year
+            const jubileePos = megaCyclePos === 0 ? 50 : megaCyclePos;
+            const shemitahPos = megaCyclePos === 0 ? 7 : (((megaCyclePos - 1) % 7) + 1);
+
+            const cycleTpl = T.cycle_year_of || E.cycle_year_of;
+            document.getElementById('shemitah-value').innerText = cycleTpl.replace('{n}', shemitahPos).replace('{total}', 7);
+            document.getElementById('jubilee-value').innerText = cycleTpl.replace('{n}', jubileePos).replace('{total}', 50);
+
+            const isRestYear = (shemitahPos === 7) || (jubileePos === 50);
+            const landStatusTitleEl = document.getElementById('land-status-title');
+            landStatusTitleEl.innerText = isRestYear
+                ? (T.land_cycle_rest || E.land_cycle_rest)
+                : (T.land_cycle_can_plant || E.land_cycle_can_plant);
+            landStatusTitleEl.classList.toggle('can-plant', !isRestYear);
+
+            let descTpl;
+            if (jubileePos === 50) {
+                descTpl = (T.land_status_jubilee_desc || E.land_status_jubilee_desc).replace('{n}', jubileePos);
+            } else if (shemitahPos === 7) {
+                descTpl = (T.land_status_shemitah_desc || E.land_status_shemitah_desc).replace('{n}', shemitahPos);
+            } else {
+                descTpl = (T.land_status_regular_desc || E.land_status_regular_desc).replace('{n}', shemitahPos);
+            }
+            document.getElementById('land-status-desc').innerText = descTpl;
+
+            const chronoPrefix = T.land_status_chrono_prefix || E.land_status_chrono_prefix;
+            document.getElementById('land-status-chrono').innerText = `${chronoPrefix} ${chronoLabels[selectedKey] || chronoLabels.bible1814}`;
         }
     </script>
 </body>
