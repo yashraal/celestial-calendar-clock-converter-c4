@@ -72,7 +72,7 @@ function decideMonthLengthAndFullMoonDay(startDayNum) {
  * Anchor - Data correta confirmada por você
  ***********************/
 const ANCHOR = {
-  scripturalYear: 6001,  // ← Ano escritural (Bible of 1814 base)
+  scripturalYear: 2026,
   abib1Iso: "2026-05-02"   // ← Lua Nova correta (Abib 1)
 };
 
@@ -154,7 +154,7 @@ function convertToScriptural(isoDate) {
   // Festas principais (exemplo básico)
   if (m.month === 1) {
     if (dayInMonth === 14) specialDays.push({ text: "Pesach", type: "feast" });
-    if (dayInMonth === 16 || dayInMonth === 21) specialDays.push({ text: "Chag HaMatzot", type: "feast" });
+    if (dayInMonth >= 15 && dayInMonth <= 21) specialDays.push({ text: "Chag HaMatzot", type: "feast" });
   }
   if (m.month === 7) {
     if (dayInMonth === 1) specialDays.push({ text: "Yom Teruah", type: "feast" });
@@ -170,85 +170,6 @@ function convertToScriptural(isoDate) {
     monthLength: m.length,
     specialDays
   };
-}
-
-/***********************
- * Land Cycle Calculations (Shemitah & Jubilee)
- ***********************/
-const CHRONOLOGIES = {
-  bible1814: { year: 6001, name: "Bible of 1814 (Ethiopian Source - 6000)" },
-  masoretic: { year: 5787, name: "Masoretic (Traditional Jewish - 5786)" },
-  septuagint: { year: 6387, name: "Septuagint / Ethiopian Bible (6386)" }
-};
-
-function calculateLandCycle(hebrewYear) {
-  // Calculate Shemitah cycle (7-year cycle)
-  const shemitahCycle = ((hebrewYear - 1) % 7) + 1;
-  
-  // Calculate Jubilee cycle (50-year cycle)
-  const jubileeCycle = ((hebrewYear - 1) % 50) + 1;
-  
-  // Determine land status
-  let landStatus = "";
-  let landStatusDesc = "";
-  
-  if (shemitahCycle === 7) {
-    landStatus = "Terra Deve Descansar"; // Land must rest (Shemitah year)
-    landStatusDesc = "Year of Rest (Shemitah)";
-  } else if (jubileeCycle === 50) {
-    landStatus = "Terra Deve Descansar"; // Land must rest (Jubilee year)
-    landStatusDesc = "Year of Jubilee (50º Year)";
-  } else {
-    landStatus = "Pode Plantar"; // Can plant
-    landStatusDesc = "Year of Planting";
-  }
-  
-  return {
-    shemitahCycle,
-    jubileeCycle,
-    landStatus,
-    landStatusDesc
-  };
-}
-
-function updateLandCycleDisplay() {
-  const chronologySelect = document.getElementById("chronology-select");
-  const selectedChronology = chronologySelect.value;
-  const chronoData = CHRONOLOGIES[selectedChronology];
-  
-  // Get current scriptural year based on TODAY's date using the same logic as Date Converter
-  const today = localTodayISO();
-  const todayDayNum = isoToDayNum(today);
-  const todayMonth = findMonthForDay(todayDayNum);
-  
-  // If today's month is found, use its scriptural year
-  let currentScripturalYear = ANCHOR.scripturalYear; // fallback
-  if (todayMonth) {
-    currentScripturalYear = todayMonth.scripturalYear;
-  }
-  
-  // Calculate the Hebrew year for this chronology
-  // Offset = how many years away from the anchor year (2026)
-  const yearOffset = currentScripturalYear - ANCHOR.scripturalYear;
-  const currentHebrewYear = chronoData.year + yearOffset;
-  
-  const cycleData = calculateLandCycle(currentHebrewYear);
-  
-  // Update display elements
-  document.getElementById("hebrew-year-value").textContent = currentHebrewYear;
-  document.getElementById("shemitah-value").textContent = `Year ${cycleData.shemitahCycle} of 7`;
-  document.getElementById("jubilee-value").textContent = `Year ${cycleData.jubileeCycle} of 50`;
-  document.getElementById("land-status-title").textContent = cycleData.landStatus;
-  document.getElementById("land-status-desc").textContent = cycleData.landStatusDesc;
-  document.getElementById("land-status-chrono").textContent = `Chronology: ${chronoData.name}`;
-  
-  // Update status color based on land status
-  const statusElement = document.getElementById("land-status-title");
-  if (cycleData.landStatus === "Terra Deve Descansar") {
-    statusElement.style.color = "var(--alert-red)";
-  } else {
-    statusElement.style.color = "var(--accent-green)";
-  }
 }
 
 /***********************
@@ -270,6 +191,5 @@ window.addEventListener("load", () => {
   buildFromAnchor();
   document.getElementById("gregorianDate").value = localTodayISO();
   displayCalendar();
-  updateLandCycleDisplay();
-  console.log("✅ Calendário celestial carregado com lógica de 12 ou 13 meses e ciclos de terra");
+  console.log("✅ Calendário celestial carregado com lógica de 12 ou 13 meses");
 });
